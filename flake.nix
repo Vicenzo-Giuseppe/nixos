@@ -4,10 +4,9 @@
     home,
     nixpkgs,
     utils,
-    neovim,
-    nur,
     devenv,
     wsl,
+    neovim,
     ...
   }: let
     host = "wsl";
@@ -29,7 +28,6 @@
       overlay
       utils.overlay
       neovim.overlay
-      nur.overlay
     ];
     x = builtins;
     import_ = name:
@@ -58,7 +56,6 @@
           wsl.nixosModules.wsl
           ./systems/wsl.nix
         ];
-        extraArgs = {inherit wsl;};
       };
     };
     hostDefaults = {
@@ -75,9 +72,8 @@
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     home.url = "github:nix-community/home-manager";
     utils.url = "github:gytis-ivaskevicius/flake-utils-plus";
+    devenv.url = "github:cachix/devenv";
     neovim.url = "github:nix-community/neovim-nightly-overlay";
-    nur.url = "github:nix-community/NUR";
-    devenv.url = "github:cachix/devenv/latest";
     wsl.url = "github:nix-community/NixOS-WSL";
   };
 }

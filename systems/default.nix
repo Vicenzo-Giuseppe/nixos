@@ -4,17 +4,11 @@
   host,
   ...
 }: let
-  en_US = "en_US.UTF-8";
-  pt_BR = "pt_BR.UTF-8";
-  font = ["FiraCode" "DroidSansMono"];
-  timezone = "America/Sao_Paulo";
-  fullname = "Vicenzo Giuseppe Furno Baptista";
-  nixpkgs = "nixpkgs=/etc/nixpkgs";
-  groups = ["networkmanager" "wheel" "docker"];
   imports = [
     ./desktop-hardware.nix
     ./cachix.nix
     ./steam.nix
+    ./user-config.nix
   ];
 in {
   inherit imports;
@@ -28,31 +22,9 @@ in {
       };
     };
   };
-  environment.etc.nixpkgs.source = pkgs.path;
-  nix = {
-    nixPath = [
-      nixpkgs
-    ];
-  };
   networking = {
     hostName = host;
     networkmanager.enable = true;
-  };
-  virtualisation.docker.enable = true;
-  time.timeZone = timezone;
-  i18n = {
-    defaultLocale = en_US;
-    extraLocaleSettings = {
-      LC_ADDRESS = pt_BR;
-      LC_IDENTIFICATION = pt_BR;
-      LC_MEASUREMENT = pt_BR;
-      LC_MONETARY = pt_BR;
-      LC_NAME = pt_BR;
-      LC_NUMERIC = pt_BR;
-      LC_PAPER = pt_BR;
-      LC_TELEPHONE = pt_BR;
-      LC_TIME = pt_BR;
-    };
   };
   services = {
     xserver = {
@@ -70,16 +42,15 @@ in {
         };
       };
       desktopManager.plasma5.enable = true;
-      xkbVariant = "";
       windowManager.xmonad = {
-        enable = true;
-        enableContribAndExtras = true;
+        enable = false;
+        enableContribAndExtras = false;
         extraPackages = haskellPackages:
           with haskellPackages; [
-            #      haskellPackages.X11
-            #      haskellPackages.containers_0_6_6
-            #      haskellPackages.directory_1_3_8_0
-            #      haskellPackages.filepath_1_4_100_0
+            #X11
+            #containers_0_6_6
+            #directory_1_3_8_0
+            #filepath_1_4_100_0
             xmonad
             xmonad-contrib
             xmonad-extras
@@ -103,17 +74,4 @@ in {
     ckb-next.enable = true;
   };
   sound.enable = true;
-  users.users."${user}" = {
-    isNormalUser = true;
-    description = fullname;
-    extraGroups = groups;
-    shell = pkgs.zsh;
-    initialHashedPassword = "]";
-  };
-  fonts.packages = with pkgs; [
-    (nerdfonts.override {fonts = font;})
-  ];
-  systemd.services.nixos-upgrade.path = [pkgs.git];
-  system.stateVersion = "23.05";
-  programs.zsh.enable = true; # fix because already have it in home-manager
 }

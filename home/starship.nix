@@ -1,66 +1,68 @@
-{user, ...}: {
+{
+  user,
+  lib,
+  ...
+}: {
   programs.starship = {
     enable = true;
     enableZshIntegration = true;
     settings = {
       add_newline = false;
-      format = [
-        "
-          $username\
-          $hostname\
-          $shlvl\
-          $directory\
-          $git_branch\
-          $git_commit\
-          $git_state\
-          $git_status\
-          $hg_branch\
-          $custom\
-          $docker_context\
-          $package\
-          $cmake\
-          $dart\
-          $dotnet\
-          $elixir\
-          $lua\
-          $elm\
-          $erlang\
-          $golang\
-          $helm\
-          $java\
-          $julia\
-          $kotlin\
-          $nim\
-          $nodejs\
-          $ocaml\
-          $perl\
-          $php\
-          $purescript\
-          $python\
-          $ruby\
-          $rust\
-          $swift\
-          $terraform\
-          $vagrant\
-          $zig\
-          $nix_shell\
-          $sudo\
-          $conda\
-          $memory_usage\
-          $aws\
-          $gcloud\
-          $openstack\
-          $env_var\
-          $crystal\
-          $cmd_duration\
-          $fill\
-          $time\
-          $line_break\
-          $jobs\
-          $battery\
-          $status\
-          $character
-        "
+      format = lib.concatStrings [
+        "$username"
+        "$hostname"
+        "$shlvl"
+        "$directory"
+        "$git_branch"
+        "$git_commit"
+        "$git_state"
+        "$git_status"
+        "$hg_branch"
+        "$custom"
+        "$docker_context"
+        "$package"
+        "$cmake"
+        "$dart"
+        "$dotnet"
+        "$elixir"
+        "$lua"
+        "$elm"
+        "$erlang"
+        "$golang"
+        "$helm"
+        "$java"
+        "$julia"
+        "$kotlin"
+        "$nim"
+        "$nodejs"
+        "$ocaml"
+        "$perl"
+        "$php"
+        "$purescript"
+        "$python"
+        "$ruby"
+        "$rust"
+        "$swift"
+        "$terraform"
+        "$vagrant"
+        "$zig"
+        "$nix_shell"
+        "$sudo"
+        "$conda"
+        "$memory_usage"
+        "$aws"
+        "$gcloud"
+        "$openstack"
+        "$env_var"
+        "$crystal"
+        "$cmd_duration"
+        "$fill"
+        "$time"
+        "$line_break"
+        "$jobs"
+        "$battery"
+        "$status"
+        "$character"
       ];
       scan_timeout = 10;
       character = {

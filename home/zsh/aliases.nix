@@ -3,8 +3,8 @@
   user,
   ...
 }: let
-    eza = "eza --color=always --icons --group-directories-first -F ";
-    overview = "--no-time --no-user --no-filesize --no-permissions";
+  eza = "eza --color=always --icons --group-directories-first -F ";
+  overview = "--no-time --no-user --no-filesize --no-permissions";
 in {
   programs.zsh.shellAliases = {
     c = "clear";
@@ -25,6 +25,7 @@ in {
     mv = "mv -i";
     rm = "rm -i -rf";
     # others
-    nixos-rebuild = "sudo nixos-rebuild --flake '/home/${user}/nixos#${host}'";
+    #nixos-rebuild = "sudo nixos-rebuild --flake '/home/${user}/nixos#${host}'";
+    nixos-rebuild = "sudo nixos-rebuild --flake ${builtins.toString ./.}${host}";
   };
 }

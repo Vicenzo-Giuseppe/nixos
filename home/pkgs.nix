@@ -1,11 +1,11 @@
 {pkgs, ...}: let
   pkgs_ = with pkgs; [
+    git
     #gcc
     #yarn
     #pnpm
     #gnumake
     #cargo
-    git
     #nodejs
     #nodePackages.webtorrent-cli
     #dijo
