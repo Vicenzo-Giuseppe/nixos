@@ -3,77 +3,101 @@
     self,
     home,
     nixpkgs,
+    microvm,
     utils,
-    devenv,
-    wsl,
-    neovim,
     ...
-  }: let
-    host = "wsl";
-    user = "vicenzo";
-    supportedSystems = ["x86_64-linux"];
-    modules = [
-      home.nixosModules.home-manager
-      {
-        home-manager = {
-          useGlobalPkgs = true;
-          useUserPackages = true;
-          users.${user} = {};
-          sharedModules = import_ ./home;
-          extraSpecialArgs = {inherit host user;};
+  }:
+    with builtins; let
+      Config = fromTOML (readFile ./config.toml);
+      inherit (Config) system host user;
+      channelsConfig = import ./systems/nix-config.nix {inherit nixpkgs user;};
+      sharedOverlays = import ./systems/overlays.nix {inherit pkgs inputs;};
+      hosts = import ./systems {
+        inherit
+          host
+          system
+          user
+          Config
+          ;
+      };
+      hostDefaults = {
+        modules = import ./systems/hm-manager.nix {
+          inherit
+            home
+            host
+            user
+            system
+            inputs
+            Config
+            ;
         };
-      }
-    ];
-    sharedOverlays = [
-      overlay
-      utils.overlay
-      neovim.overlay
-    ];
-    x = builtins;
-    import_ = name:
-      map (i: "${name}/${i}")
-      (x.attrNames (x.readDir name));
-    overlay = y: z: let
-      dirContents = x.readDir ./pkgs;
-      genPackage = name: {
-        inherit name;
-        value = y.callPackage (./pkgs + "/${name}") {};
+        extraArgs = {inherit user;};
       };
-      names = x.attrNames dirContents;
+      outputsBuilder = x: let
+        formatter =
+          (import ./systems/formatters.nix {
+            inherit inputs;
+            pkgs = x.nixpkgs;
+          }).config.build.wrapper;
+
+        mkMicroVm = name: configModule:
+          (nixpkgs.lib.nixosSystem {
+            inherit system;
+            modules = [
+              microvm.nixosModules.microvm
+              configModule
+            ];
+          }).config.microvm.declaredRunner;
+
+        packages = {
+          default = mkMicroVm "default-vm" (
+            import ./systems/microvm.nix {
+              inherit inputs config;
+              pkgs = nixpkgs;
+            }
+          );
+        };
+      in {
+        inherit packages formatter;
+      };
     in
-      x.listToAttrs (map genPackage names);
-    outputsBuilder = x: let
-      pkgs = x.nixpkgs;
-      shell = import ./shell {inherit pkgs inputs devenv;};
-    in {
-      devShells = shell;
-      formatter = pkgs.alejandra;
-    };
-    channelsConfig = import ./nix {inherit nixpkgs user;};
-    hosts = {
-      wsl = {
-        modules = [
-          wsl.nixosModules.wsl
-          ./systems/wsl.nix
-        ];
+      utils.lib.mkFlake {
+        inherit
+          self
+          inputs
+          sharedOverlays
+          channelsConfig
+          outputsBuilder
+          hostDefaults
+          hosts
+          ;
+        supportedSystems = [system];
+      };
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    utils.url = "github:gytis-ivaskevicius/flake-utils-plus";
+    neovim.url = "github:nix-community/neovim-nightly-overlay";
+    zen-browser.url = "github:0xc000022070/zen-browser-flake/beta";
+    spicetify.url = "github:Gerg-L/spicetify-nix";
+    opencode.url = "github:sst/opencode/";
+    treefmt.url = "github:numtide/treefmt-nix";
+    mnw.url = "github:Gerg-L/mnw";
+    cosmic-manager = {
+      url = "github:HeitorAugustoLN/cosmic-manager";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        home-manager.follows = "home";
       };
     };
-    hostDefaults = {
-      inherit modules;
-      channelName = "unstable";
-      extraArgs = {inherit user;};
+    sops.url = "github:Mic92/sops-nix";
+    bun2nix.url = "github:nix-community/bun2nix";
+    home = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
-  in
-    utils.lib.mkFlake {
-      inherit self inputs sharedOverlays channelsConfig outputsBuilder supportedSystems hosts hostDefaults;
+    microvm = {
+      url = "github:microvm-nix/microvm.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/release-23.05";
-    unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-    home.url = "github:nix-community/home-manager";
-    utils.url = "github:gytis-ivaskevicius/flake-utils-plus";
-    devenv.url = "github:cachix/devenv";
-    neovim.url = "github:nix-community/neovim-nightly-overlay";
-    wsl.url = "github:nix-community/NixOS-WSL";
   };
 }

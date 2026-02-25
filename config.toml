@@ -1,0 +1,25 @@
+# Basic Settings
+user = "vicenzo"        # Default User
+system = "x86_64-linux" # Default System
+host = "notebook"       # Default Host
+# Programs Configs Enabled
+[programs]
+aria2 = true       # SystemDownloader
+bat = true         # CLI
+cosmic = true      # Cosmic Desktop with Wayland
+xdg = true         # XDG User Dirs
+opencode = true    # A.I Agents
+direnv = true      # Auto-Shell Dev Enviroment with Nix
+firefox = true     # Browser
+home = true        # Home-Manager Misc Configs
+pkgs = true        # General Packages
+starship = true    # Customize ZSH prompt
+zen-browser = true # Browser
+zsh = true         # Default Shell
+mnw = true         # Neovim Configured( ex. zv config.toml )
+sops = true        # Secrets Encrypted and Managed
+openssh = true     # Cryptograph SHA256 Key
+btop = true        # System Usage Monitor
+spicetify = true   # Spotify with PIRACYYY OH YEAH
+steam = true       # Games
+localsend = true   # Send files-fast thought local WIFI
