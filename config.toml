@@ -2,7 +2,7 @@
 user = "vicenzo"        # Default User
 system = "x86_64-linux" # Default System
 host = "notebook"       # Default Host
-# Programs Configs Enabled
+# NixOS - Programs Configs Enabled
 [programs]
 aria2 = true       # SystemDownloader
 bat = true         # CLI
