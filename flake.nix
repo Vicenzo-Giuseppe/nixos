@@ -48,8 +48,20 @@
               configModule
             ];
           }).config.microvm.declaredRunner;
+        inherit
+          ((
+            import ./lib/packages.nix {
+              inherit (nixpkgs) lib;
+              inherit inputs user;
+              home-lib = home.lib;
+              pkgs = nixpkgs.legacyPackages.${system};
+            } "mnw"
+          ))
+          Packages
+          ;
 
         packages = {
+          zv = Packages.config.programs.mnw.finalPackage;
           default = mkMicroVm "default-vm" (
             import ./systems/microvm.nix {
               inherit inputs config;

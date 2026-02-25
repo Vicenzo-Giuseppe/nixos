@@ -1,8 +1,8 @@
-# programs/neovim/default.nix
+# programs/mnw/default.nix
 {
   lib,
-  pkgs,
-  enabled,
+  pkgs ? {},
+  enabled ? true,
   ...
 }:
 with pkgs; let
@@ -12,8 +12,7 @@ with pkgs; let
     src = ./lua/plugins/statusline;
     doCheck = false;
   };
-in {
-  home = lib.mkIf enabled {
+  homeConfig = {
     programs.mnw = {
       enable = true;
       initLua = ''
@@ -45,28 +44,24 @@ in {
         ];
         dev.myconfig = {
           pure = ./.;
-          #impure = "${config.xdg.configHome}/zv";
           impure = "/home/vicenzo/.config/zv";
         };
         opt = with vimPlugins; [
           nvim-navbuddy
           bufferline-nvim
           showkeys
-          #outline-nvim
-          #nvim-dap-ui
           markview-nvim
           lsp-progress-nvim
-          #toggleterm-nvim
-          {
-            pname = "heirline";
-
-            src = fetchFromGitHub {
-              owner = "rebelot";
-              repo = "heirline.nvim";
-              rev = "fae936abb5e0345b85c3a03ecf38525b0828b992";
-              hash = "sha256-kHoaeULWI+NrLp0am0DSKRKeA1vZIg4pt5NxZuFUDvY=";
-            };
-          }
+          # {
+          #   pname = "heirline";
+          #
+          #   src = fetchFromGitHub {
+          #     owner = "rebelot";
+          #     repo = "heirline.nvim";
+          #     rev = "fae936abb5e0345b85c3a03ecf38525b0828b992";
+          #     hash = "sha256-kHoaeULWI+NrLp0am0DSKRKeA1vZIg4pt5NxZuFUDvY=";
+          #   };
+          # }
           {
             pname = "prompt";
 
@@ -77,18 +72,13 @@ in {
               hash = "sha256-LdHB4Bp/ardkVnrZ3gveVcMDk+jUuhpdoNQraA/CGUA=";
             };
           }
-          #lualine-nvim
-          #codecompanion
           codecompanion-nvim
-          #blink-cmp
-          #mason-lspconfig-nvim
-          #mason-nvim
-          #nvim-lspconfig
         ];
       };
     };
   };
-  nixos = lib.mkIf enabled {
-    # Outras configurações do NixOS aqui
-  };
+in {
+  home = lib.mkIf enabled homeConfig;
+  nixos = lib.mkIf enabled {};
+  config = homeConfig;
 }
