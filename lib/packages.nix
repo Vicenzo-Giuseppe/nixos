@@ -11,36 +11,95 @@ let
 in
 pkgName:
 let
-  hmModule = inputs.${pkgName}.homeManagerModules.default or null;
+  hmModule = 
+    if inputs ? ${pkgName} then 
+      inputs.${pkgName}.homeManagerModules.default or null 
+    else 
+      null;
   hasExternalHMModule = hmModule != null;
 
-  progModule = import (progDir + "/${pkgName}/default.nix") {
-    inherit lib pkgs inputs;
-    enabled = true;
-  };
+  # Get sops module from flake inputs (if available)
+  sopsModule = 
+    if inputs ? sops then 
+      inputs.sops.homeManagerModules.sops or null 
+    else 
+      null;
+  hasSopsModule = sopsModule != null;
 
+  # Check if envs.yaml exists (unencrypted envs)
+  envsFile = progDir + "/sops/envs.yaml";
+  hasEnvsFile = builtins.pathExists envsFile;
+
+  # Try importing program module
+  progModuleResult = builtins.tryEval (
+    import (progDir + "/${pkgName}/default.nix") {
+      inherit lib pkgs inputs;
+      enabled = true;
+    }
+  );
+
+  progModule = 
+    if progModuleResult.success then
+      progModuleResult.value
+    else
+      import (progDir + "/${pkgName}/default.nix") {
+        inherit lib pkgs;
+        enabled = true;
+      };
+
+  # Handle different module formats
   moduleToUse = 
-    if hasExternalHMModule then
-      progModule.config or progModule
+    if progModule ? config then
+      progModule.config
+    else if progModule ? home then
+      progModule.home
     else
       progModule;
+
+  # Build sops config - use envs.yaml if exists, otherwise empty
+  sopsConfig = 
+    if hasEnvsFile then
+      {
+        sops = {
+          defaultSopsFile = envsFile;
+          defaultSopsFormat = "yaml";
+          secrets = {};
+        };
+      }
+    else if hasSopsModule then
+      {
+        sops = {
+          defaultSopsFile = progDir + "/sops/secrets.yaml";
+          defaultSopsFormat = "yaml";
+          age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
+          secrets = {};
+        };
+      }
+    else
+      {};
+
+  # Build HM configuration - include external module and sops if available
+  modulesList = 
+    if hasExternalHMModule then
+      [hmModule]
+    else
+      []
+    ++ lib.optional hasSopsModule sopsModule
+    ++ lib.optional (sopsConfig != {}) sopsConfig
+    ++ [moduleToUse];
 
   hmResult = builtins.tryEval (
     home-lib.homeManagerConfiguration {
       inherit pkgs;
-      modules = (
-        lib.optional hasExternalHMModule hmModule
-        ++ [
-          moduleToUse
-          {
-            home = {
-              username = user;
-              homeDirectory = "/home/${user}";
-              stateVersion = "24.11";
-            };
-          }
-        ]
-      );
+      modules = modulesList ++ [
+        {
+          home = {
+            username = user;
+            homeDirectory = "/home/${user}";
+            stateVersion = "24.11";
+          };
+        }
+      ];
     }
   );
 
@@ -48,25 +107,39 @@ let
 
   progConfig = if hmConfig != null then hmConfig.config.programs.${pkgName} or {} else {};
 
+  # Check if flake input has packages for current system
+  hasFlakeInput = 
+    inputs ? ${pkgName} 
+    && inputs.${pkgName} ? packages
+    && inputs.${pkgName}.packages ? ${currentSystem}
+    && inputs.${pkgName}.packages.${currentSystem} ? default;
+    
+  flakePkg = if hasFlakeInput then inputs.${pkgName}.packages.${currentSystem}.default else null;
+
+  # Priority: finalPackage > package > flake input > nixpkgs
   finalPkg =
     if progConfig ? finalPackage then
       progConfig.finalPackage
     else if progConfig ? package then
       progConfig.package
-    else if inputs.${pkgName} ? packages then
-      inputs.${pkgName}.packages.${currentSystem}.default
+    else if hasFlakeInput then
+      flakePkg
     else if hmResult.success then
-      throw "Package '${pkgName}' has no finalPackage or package attribute in HM config"
+      pkgs.${pkgName} or (throw "Package '${pkgName}' not in nixpkgs")
     else
-      throw "Failed to build HM config and no flake package available for '${pkgName}'";
+      pkgs.${pkgName} or (throw "Package '${pkgName}' not found");
 
   warnMsg =
-    if hmConfig == null && hasExternalHMModule then
-      "Warning: ${pkgName} failed to build HM config - using flake package"
+    if hmConfig == null then
+      "Warning: ${pkgName} HM config failed - using fallback"
+    else if !hasEnvsFile && hasSopsModule then
+      "Warning: ${pkgName} envs.yaml not found - add programs/sops/envs.yaml for secrets"
+    else if hasEnvsFile then
+      "Warning: ${pkgName} using envs.yaml (unencrypted)"
+    else if !hasSopsModule then
+      "Warning: ${pkgName} no sops module - secrets not available"
     else if !hasExternalHMModule then
-      "Warning: ${pkgName} has no homeManagerModules in inputs - using flake package"
-    else if ! (progConfig ? finalPackage) then
-      "Warning: ${pkgName} has no finalPackage - using package attribute"
+      "Warning: ${pkgName} has no homeManagerModules - using local config"
     else null;
 in
 lib.warnIf (warnMsg != null) warnMsg finalPkg

@@ -62,7 +62,7 @@
 
           packages = {
             zv = Packages "mnw";
-            # firefox = Packages "firefox";
+            firefox = Packages "firefox";
             opencode = Packages "opencode";
             default = mkMicroVm "default-vm" (
               import ./systems/microvm.nix {

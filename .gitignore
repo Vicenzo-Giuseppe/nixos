@@ -1,3 +1,4 @@
 programs/sops/envs.yaml
 .direnv
 result
+result-*
