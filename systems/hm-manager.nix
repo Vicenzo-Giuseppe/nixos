@@ -12,6 +12,7 @@
     (inputs)
     mnw
     spicetify
+    nixos-shell
     cosmic-manager
     sops
     zen-browser
@@ -43,6 +44,7 @@ in [
       };
     };
   }
+  nixos-shell.nixosModules.nixos-shell
   spicetify.nixosModules.spicetify
   sops.nixosModules.sops
   # microvm.nixosModules.host import ./microvm.nix

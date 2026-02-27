@@ -1,15 +1,16 @@
-{inputs, ...}: let
+{inputs, user, ...}: let
   inherit (inputs) home;
 in {
   # DON'T use microvm.vms here - this is a standalone VM!
 
   system.stateVersion = "24.11";
-  networking.hostName = "myvm";
+  networking.hostName = "${user}-vm";
 
   # User setup
-  users.users.vmuser = {
+  users.users."${user}-vm" = {
     isNormalUser = true;
-    home = "/home/vmuser";
+    home = "/home/${user}-vm";
+    password = "[";
   };
 
   # Home Manager inside the VM
@@ -19,7 +20,7 @@ in {
 
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
-  home-manager.users.vmuser = {pkgs, ...}: {
+  home-manager.users."${user}-vm" = {pkgs, ...}: {
     home.stateVersion = "24.11";
     home.packages = with pkgs; [
       vim

@@ -64,12 +64,13 @@
             zv = Packages "mnw";
             firefox = Packages "firefox";
             opencode = Packages "opencode";
-            default = mkMicroVm "default-vm" (
-              import ./systems/microvm.nix {
-                inherit inputs config;
+            vm = mkMicroVm "default-vm" (
+              import ./systems/vm.nix {
+                inherit inputs config user;
                 pkgs = nixpkgs;
               }
             );
+            # "${host}-vm" = self.nixosConfigurations.${host}.config.system.build.nixos-shell; # requires --impure and fucks up sops lib/packages.nix work
           };
         in
         {
@@ -94,6 +95,7 @@
     neovim.url = "github:nix-community/neovim-nightly-overlay";
     zen-browser.url = "github:0xc000022070/zen-browser-flake/beta";
     spicetify.url = "github:Gerg-L/spicetify-nix";
+    nixos-shell.url = "github:Mic92/nixos-shell";
     opencode.url = "github:sst/opencode/";
     treefmt.url = "github:numtide/treefmt-nix";
     mnw.url = "github:Gerg-L/mnw";
