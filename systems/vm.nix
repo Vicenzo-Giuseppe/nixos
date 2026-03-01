@@ -1,4 +1,8 @@
-{inputs, user, ...}: let
+{
+  inputs,
+  user,
+  ...
+}: let
   inherit (inputs) home;
 in {
   # DON'T use microvm.vms here - this is a standalone VM!
