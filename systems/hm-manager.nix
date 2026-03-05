@@ -6,32 +6,38 @@
   inputs,
   system,
   Config,
-}: let
+}:
+let
   colors = import ./colors.nix;
-  inherit
-    (inputs)
+  inherit (inputs)
     mnw
     spicetify
-    nixos-shell
     cosmic-manager
     sops
+    caelestia
+    #caelestia-dots
     zen-browser
     ;
-in [
+in
+[
   home.nixosModules.home-manager
   {
     home-manager = {
       useGlobalPkgs = true;
       useUserPackages = true;
-      users.${user} = {...}: {
-        imports = [
-          zen-browser.homeModules.twilight
-          cosmic-manager.homeManagerModules.default
-          mnw.homeManagerModules.default
-          sops.homeManagerModules.default
-          ../lib/home.nix
-        ];
-      };
+      users.${user} =
+        { ... }:
+        {
+          imports = [
+            zen-browser.homeModules.twilight
+            cosmic-manager.homeManagerModules.default
+            caelestia.homeManagerModules.default
+            mnw.homeManagerModules.default
+            sops.homeManagerModules.default
+            #caelestia-dots.homeManagerModules.default
+            ../lib/home.nix
+          ];
+        };
       extraSpecialArgs = {
         inherit
           host
@@ -44,7 +50,6 @@ in [
       };
     };
   }
-  nixos-shell.nixosModules.nixos-shell
   spicetify.nixosModules.spicetify
   sops.nixosModules.sops
   # microvm.nixosModules.host import ./microvm.nix

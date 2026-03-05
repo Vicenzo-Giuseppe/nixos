@@ -4,30 +4,35 @@
   lib,
   enabled,
   ...
-}: let
-  inherit (inputs) systemd nix-ai-tools nixpkgs;
+}:
+let
+  inherit (inputs)
+    warp
+    systemd
+    nix-ai-tools
+    nixpkgs
+    ;
   pkgs_ = with pkgs; [
-    wezterm
-    gradle
+    # gradle
     git
-    pnpm
-    rustc
-    pkg-config
+    # pnpm
+    # rustc
+    # pkg-config
     glib
     gdk-pixbuf
     gdtoolkit_4
     #openwor
-    jre
+    # jre
     statix
     #neovim
     ripgrep
     #pavucontrol
-    blender
+    # blender
     #nixgl.auto.nixGLNvidiaBumblebee
     #nixgl.nixGLIntel
     riseup-vpn
     lutris
-    libcamera
+    # libcamera
     fd
     vtsls
     biome
@@ -35,10 +40,10 @@
     kotlin-debug-adapter
     ktlint
     nixd
-    warp-terminal
+    warp.packages.${pkgs.system}.default
     fup-repl
     nil
-    bun
+    # bun
     #kotlin-lsp
     #(btop.override { cudaSupport = true; })
     nvtopPackages.full
@@ -50,13 +55,13 @@
     #vlc
     nix-direnv
     devenv
-    marksman
+    # marksman
     nixd
     lenovo-legion
-    pandoc
-    w3m
+    # pandoc
+    # w3m
     curl
-    yarn
+    # yarn
     tree-sitter
     #localsend
     #warp-terminal
@@ -70,7 +75,7 @@
     hwinfo-tui
     runal
     yatto
-    signal-cli
+    # signal-cli
     lua
     #crush
     sops
@@ -80,15 +85,15 @@
     #charm-freeze
     #pop
     #gopls
-    gnumake
-    cargo
-    go
+    # gnumake
+    # cargo
+    # go
     #rustc
-    gcc
+    # gcc
     #ruff
     #basedpyright
     uv
-    nodejs
+    # nodejs
     #lunarvim
     #devenv
     #direnv
@@ -191,7 +196,7 @@
     #moltengamepad
     hydralauncher
     #game-devices-udev-rules
-    antimicrox
+    # antimicrox
     #wine
     #winetricks
     #wine64Packages.waylandFull
@@ -219,9 +224,10 @@
   ];
   kotlin-lsp = inputs.kotlin-lsp.packages.x86_64-linux.default;
   pkgs__ = pkgs_ ++ node ++ python_ ++ nix-ai;
-in {
+in
+{
   home = lib.mkIf enabled {
     home.packages = pkgs__;
   };
-  nixos = lib.mkIf enabled {};
+  nixos = lib.mkIf enabled { };
 }

@@ -95,7 +95,7 @@ in {
               ];
               type = "local";
               environment = {
-                # EXA_API_KEY = readFile env.EXA_API_KEY.path;
+                EXA_API_KEY = readFile env.EXA_API_KEY.path;
               };
             };
             github = {
@@ -107,7 +107,7 @@ in {
               ];
               type = "local";
               environment = {
-                # GITHUB_PERSONAL_ACCESS_TOKEN = readFile env.GITHUB_PERSONAL_ACCESS_TOKEN.path;
+                GITHUB_PERSONAL_ACCESS_TOKEN = readFile env.GITHUB_PERSONAL_ACCESS_TOKEN.path;
               };
             };
             blender = {
@@ -127,7 +127,7 @@ in {
                 "firecrawl-mcp"
               ];
               environment = {
-                # FIRECRAWL_API_KEY = readFile env.FIRECRAWL_API_KEY.path;
+                FIRECRAWL_API_KEY = readFile env.FIRECRAWL_API_KEY.path;
               };
             };
             firefox-mcp = {

@@ -230,9 +230,6 @@ host = "%s"       # Default Host
 }
 
 func main() {
-	// Check if called with --setup flag (forced setup mode)
-	forceSetup := len(os.Args) > 1 && os.Args[1] == "--setup"
-
 	fmt.Println(`
 ╔═══════════════════════════════════════════════════════════╗
 ║              Welcome to NixOS Setup!                      ║
@@ -241,34 +238,26 @@ func main() {
 ╚═══════════════════════════════════════════════════════════╝
 `)
 
-	// 1. Check if has flake.nix
-	if !hasFlakeNix() {
-		// No flake.nix - need to clone the repo
-		fmt.Println("No flake.nix found. Initializing NixOS flake from template...")
-		if err := runFlakeInit(); err != nil {
-			fmt.Printf("Error initializing flake: %v\n", err)
-			os.Exit(1)
-		}
-		// After cloning, force setup mode
-		forceSetup = true
-	}
-
-	// 2. Check if config.toml exists
-	if hasConfigToml() && !forceSetup {
-		// Has config.toml - run the VM (default behavior)
-		runVM()
-		return
-	}
-
-	// 3. No config.toml or forced setup - run wizard
-	fmt.Println("\nNo config.toml found. Running setup wizard...")
-
-	// 3. Get defaults
+	// Check if config.toml exists and load defaults
 	defaultUser := getCurrentUsername()
 	defaultHost := getCurrentHostname()
 	if defaultHost == "" {
 		defaultHost = "notebook"
 	}
+
+	if hasConfigToml() {
+		fmt.Println("\nconfig.toml found. Loading current configuration...")
+		if cfg, err := readConfig(); err == nil {
+			if cfg.User != "" {
+				defaultUser = cfg.User
+			}
+			if cfg.Host != "" {
+				defaultHost = cfg.Host
+			}
+		}
+	}
+
+	fmt.Println("\nRunning setup wizard...")
 
 	// 4. Run huh form
 	var user, host, system string

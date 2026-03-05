@@ -1,7 +1,6 @@
 {
   user,
   pkgs,
-  inputs,
   lib,
   enabled,
   ...
@@ -20,14 +19,6 @@ in {
       username = user;
       homeDirectory = lib.mkForce "/home/${user}";
       stateVersion = "24.11";
-      file.wezterm = {
-        inherit source;
-        target = ".config/wezterm";
-      };
-      file.xplr = {
-        source = source2;
-        target = ".config/xplr";
-      };
       file.".config/stormy/stormy.toml".source = "${pkgs.stormy}/etc/stormy/stormy.toml";
       packages = with pkgs; [
         xplr
@@ -37,3 +28,11 @@ in {
   };
   nixos = lib.mkIf enabled {};
 }
+      # file.wezterm = {
+      #   inherit source;
+      #   target = ".config/wezterm";
+      # };
+      # file.xplr = {
+      #   source = source2;
+      #   target = ".config/xplr";
+      # };

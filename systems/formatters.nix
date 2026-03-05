@@ -12,6 +12,5 @@ in
       mdformat.enable = true;
       stylua.enable = true;
       taplo.enable = true;
-      gofmt.enable = true;
     };
   }
