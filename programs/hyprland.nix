@@ -4,9 +4,11 @@
   enabled,
   inputs,
   ...
-}: let
+}:
+let
   inherit (inputs) hyprland;
-in {
+in
+{
   home = lib.mkIf enabled {
     wayland.windowManager.hyprland = {
       enable = true;
@@ -18,39 +20,40 @@ in {
       settings = {
         "$mod" = "SUPER";
         "$terminal" = "warp";
+        "$browser" = "zen-twilight";
         "$editor" = "zv";
         "$volumeStep" = "10";
 
         # ── Caelestia Launcher ──
-        bindi = [];
+        bindi = [ ];
         env = [
           "LIBVA_DRIVER_NAME,iHD"
           "__GLX_VENDOR_LIBRARY_NAME,nvidia"
         ];
         bind = [
           # Window focus
-          "SUPER, left, movefocus, l"
-          "SUPER, right, movefocus, r"
-          "SUPER, up, movefocus, u"
-          "SUPER, down, movefocus, d"
+          "Ctrl, left, movefocus, l"
+          "Ctrl, right, movefocus, r"
+          "Ctrl, up, movefocus, u"
+          "Ctrl, down, movefocus, d"
 
           # Move windows
-          "SUPER+Shift, left, movewindow, l"
-          "SUPER+Shift, right, movewindow, r"
-          "SUPER+Shift, up, movewindow, u"
-          "SUPER+Shift, down, movewindow, d"
+          "SUPER, left, movewindow, l"
+          "SUPER, right, movewindow, r"
+          "SUPER, up, movewindow, u"
+          "SUPER, down, movewindow, d"
 
           # Window actions
           "SUPER, Q, killactive,"
           "SUPER, F, fullscreen, 0"
-          "SUPER+Alt, F, fullscreen, 1"
-          "SUPER+Alt, Space, togglefloating,"
+          #"SUPER+Alt, F, fullscreen, 1"
+          "SUPER, Space, togglefloating,"
           "SUPER, P, pin"
           "Ctrl+SUPER, Backslash, centerwindow, 1"
 
           # Window groups
           "SUPER, Comma, togglegroup"
-          "SUPER, U, moveoutofgroup"
+          "SUPER+Alt, Comma, moveoutofgroup"
           "SUPER+Shift, Comma, lockactivegroup, toggle"
 
           # Go to workspace
@@ -68,29 +71,29 @@ in {
           "SUPER, mouse_up, workspace, +1"
 
           # Move window to workspace
-          "SUPER+Alt, 1, movetoworkspace, 1"
-          "SUPER+Alt, 2, movetoworkspace, 2"
-          "SUPER+Alt, 3, movetoworkspace, 3"
-          "SUPER+Alt, 4, movetoworkspace, 4"
-          "SUPER+Alt, 5, movetoworkspace, 5"
-          "SUPER+Alt, 6, movetoworkspace, 6"
-          "SUPER+Alt, 7, movetoworkspace, 7"
-          "SUPER+Alt, 8, movetoworkspace, 8"
-          "SUPER+Alt, 9, movetoworkspace, 9"
-          "SUPER+Alt, 0, movetoworkspace, 10"
-          "SUPER+Alt, mouse_down, movetoworkspace, -1"
-          "SUPER+Alt, mouse_up, movetoworkspace, +1"
-          "SUPER+Alt, S, movetoworkspace, special:special"
+          "Shift+Alt, 1, movetoworkspace, 1"
+          "Shift+Alt, 2, movetoworkspace, 2"
+          "Shift+Alt, 3, movetoworkspace, 3"
+          "Shift+Alt, 4, movetoworkspace, 4"
+          "Shift+Alt, 5, movetoworkspace, 5"
+          "Shift+Alt, 6, movetoworkspace, 6"
+          "Shift+Alt, 7, movetoworkspace, 7"
+          "Shift+Alt, 8, movetoworkspace, 8"
+          "Shift+Alt, 9, movetoworkspace, 9"
+          "Shift+Alt, 0, movetoworkspace, 10"
+          "Shift+Alt, mouse_down, movetoworkspace, -1"
+          "Shift+Alt, mouse_up, movetoworkspace, +1"
+          "Shift+Alt, S, movetoworkspace, special:special"
           "Ctrl+SUPER+Shift, up, movetoworkspace, special:special"
           "Ctrl+SUPER+Shift, down, movetoworkspace, e+0"
 
           # Apps
-          "SUPER, T, exec, $terminal"
-          "SUPER, W, exec, $editor"
-          "Ctrl+Alt, V, exec, pavucontrol"
+          "SUPER, E, exec, $terminal"
+          "SUPER, W, exec, $browser"
+          #"SUPER, T, exec, $editor"
 
           # Screenshot & colour picker
-          "SUPER+Shift, C, exec, hyprpicker -a"
+          "Ctrl+Alt, C, exec, hyprpicker -a"
         ];
 
         binde = [
@@ -133,9 +136,9 @@ in {
           ", XF86AudioLowerVolume, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; wpctl set-volume @DEFAULT_AUDIO_SINK@ $volumeStep%-"
         ];
 
-        bindr = [];
+        bindr = [ ];
 
-        exec-once = [];
+        exec-once = [ ];
 
         input = {
           kb_layout = "br";
