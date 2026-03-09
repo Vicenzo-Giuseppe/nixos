@@ -61,8 +61,8 @@
           firefox = Packages "firefox";
           opencode = Packages "opencode";
           default = mkMicroVm "default-vm" (
-            import ./systems/microvm.nix {
-              inherit inputs config;
+            import ./systems/vm.nix {
+              inherit inputs user;
               pkgs = nixpkgs;
             }
           );

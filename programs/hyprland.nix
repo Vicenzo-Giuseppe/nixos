@@ -22,17 +22,12 @@ in {
         "$volumeStep" = "10";
 
         # ── Caelestia Launcher ──
-        bindi = ["SUPER, SUPER_L, global, caelestia:launcher"];
+        bindi = [];
         env = [
           "LIBVA_DRIVER_NAME,iHD"
           "__GLX_VENDOR_LIBRARY_NAME,nvidia"
         ];
         bind = [
-          # Caelestia globals
-          "Ctrl+Alt, Delete, global, caelestia:session"
-          "SUPER, K, global, caelestia:showall"
-          "SUPER, L, global, caelestia:lock"
-
           # Window focus
           "SUPER, left, movefocus, l"
           "SUPER, right, movefocus, r"
@@ -89,27 +84,13 @@ in {
           "Ctrl+SUPER+Shift, up, movetoworkspace, special:special"
           "Ctrl+SUPER+Shift, down, movetoworkspace, e+0"
 
-          # Special workspace toggles
-          "SUPER, S, exec, caelestia toggle specialws"
-          "Ctrl+Shift, Escape, exec, caelestia toggle sysmon"
-          "SUPER, M, exec, caelestia toggle music"
-          "SUPER, D, exec, caelestia toggle communication"
-          "SUPER, R, exec, caelestia toggle todo"
-
           # Apps
           "SUPER, T, exec, $terminal"
           "SUPER, W, exec, $editor"
           "Ctrl+Alt, V, exec, pavucontrol"
 
           # Screenshot & colour picker
-          "SUPER+Shift, S, global, caelestia:screenshotFreeze"
-          "SUPER+Shift+Alt, S, global, caelestia:screenshot"
           "SUPER+Shift, C, exec, hyprpicker -a"
-
-          # Clipboard & emoji
-          "SUPER, V, exec, pkill fuzzel || caelestia clipboard"
-          "SUPER+Alt, V, exec, pkill fuzzel || caelestia clipboard -d"
-          "SUPER, Period, exec, pkill fuzzel || caelestia emoji -p"
         ];
 
         binde = [
@@ -139,32 +120,10 @@ in {
         ];
 
         bindl = [
-          # Caelestia globals
-          "Ctrl+Alt, C, global, caelestia:clearNotifs"
-          "SUPER+Alt, L, global, caelestia:lock"
-          "SUPER+Alt, L, exec, caelestia shell -d"
-          # Brightness
-          ", XF86MonBrightnessUp, global, caelestia:brightnessUp"
-          ", XF86MonBrightnessDown, global, caelestia:brightnessDown"
-          # Media
-          "Ctrl+SUPER, Space, global, caelestia:mediaToggle"
-          ", XF86AudioPlay, global, caelestia:mediaToggle"
-          ", XF86AudioPause, global, caelestia:mediaToggle"
-          ", XF86AudioStop, global, caelestia:mediaStop"
-          "Ctrl+SUPER, Equal, global, caelestia:mediaNext"
-          ", XF86AudioNext, global, caelestia:mediaNext"
-          "Ctrl+SUPER, Minus, global, caelestia:mediaPrev"
-          ", XF86AudioPrev, global, caelestia:mediaPrev"
           # Volume
           ", XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
           ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
           "SUPER+Shift, M, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
-          # Screenshot
-          ", Print, exec, caelestia screenshot"
-          # Screen record
-          "SUPER+Alt, R, exec, caelestia record -s"
-          "Ctrl+Alt, R, exec, caelestia record"
-          "SUPER+Shift+Alt, R, exec, caelestia record -r"
           # Sleep
           "SUPER+Shift, L, exec, systemctl suspend-then-hibernate"
         ];
@@ -174,14 +133,9 @@ in {
           ", XF86AudioLowerVolume, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; wpctl set-volume @DEFAULT_AUDIO_SINK@ $volumeStep%-"
         ];
 
-        bindr = [
-          "Ctrl+SUPER+Shift, R, exec, qs -c caelestia kill"
-          "Ctrl+SUPER+Alt, R, exec, qs -c caelestia kill; sleep .1; caelestia shell -d"
-        ];
+        bindr = [];
 
-        exec-once = [
-          "caelestia shell -d"
-        ];
+        exec-once = [];
 
         input = {
           kb_layout = "br";

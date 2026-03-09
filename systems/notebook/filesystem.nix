@@ -1,6 +1,9 @@
 {pkgs, ...}: {
   imports = [
-    "${builtins.fetchTarball "https://github.com/nix-community/disko/archive/master.tar.gz"}/module.nix"
+    "${builtins.fetchTarball {
+      url = "https://github.com/nix-community/disko/archive/master.tar.gz";
+      sha256 = "02k1rx0ph625bd71wyfdr2w6zr73adnd36b19zhgb8pcajb4f6cj";
+    }}/module.nix"
   ];
   disko.devices = {
     disk = {
