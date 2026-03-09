@@ -4,11 +4,9 @@
   enabled,
   inputs,
   ...
-}:
-let
+}: let
   inherit (inputs) hyprland;
-in
-{
+in {
   home = lib.mkIf enabled {
     wayland.windowManager.hyprland = {
       enable = true;
@@ -24,9 +22,11 @@ in
         "$volumeStep" = "10";
 
         # ── Caelestia Launcher ──
-        bindi = [ "SUPER, SUPER_L, global, caelestia:launcher" ];
-
-
+        bindi = ["SUPER, SUPER_L, global, caelestia:launcher"];
+        env = [
+          "LIBVA_DRIVER_NAME,iHD"
+          "__GLX_VENDOR_LIBRARY_NAME,nvidia"
+        ];
         bind = [
           # Caelestia globals
           "Ctrl+Alt, Delete, global, caelestia:session"
@@ -211,7 +211,6 @@ in
     };
 
     home.packages = with pkgs; [
-      inputs.caelestia.packages.${pkgs.system}.with-cli
       hyprland
       wofi
       swaylock-effects
@@ -250,16 +249,16 @@ in
           };
         };
       };
-
     };
 
     # xdg.portal = {
     #   enable = true;
     #   extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
     # };
+    # Kernel (good for newer laptops)
 
     environment.sessionVariables = {
-      NIXOS_OZONE_WL = "1";
+      NIXOS_OZONE_WL = "1"; # Native Wayland for Electron apps
       XDG_CURRENT_DESKTOP = "Hyprland";
       XDG_SESSION_TYPE = "wayland";
       SDL_VIDEODRIVER = "wayland";
@@ -269,7 +268,7 @@ in
       LIBVA_DRIVER_NAME = "nvidia";
       GBM_BACKEND = "nvidia-drm";
       __GLX_VENDOR_LIBRARY_NAME = "nvidia";
-      WLR_NO_HARDWARE_CURSORS = "1";
+      WLR_NO_HARDWARE_CURSORS = "1"; # Fixes invisible cursor on NVIDIA
       ELECTRON_OZONE_PLATFORM_HINT = "auto";
     };
   };

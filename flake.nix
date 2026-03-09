@@ -1,19 +1,17 @@
 {
-  outputs =
-    inputs@{
-      self,
-      home,
-      nixpkgs,
-      microvm,
-      utils,
-      ...
-    }:
-    with builtins;
-    let
+  outputs = inputs @ {
+    self,
+    home,
+    nixpkgs,
+    microvm,
+    utils,
+    ...
+  }:
+    with builtins; let
       Config = fromTOML (readFile ./config.toml);
       inherit (Config) system host user;
-      channelsConfig = import ./systems/nix-config.nix { inherit nixpkgs user; };
-      sharedOverlays = import ./systems/overlays.nix { inherit pkgs inputs; };
+      channelsConfig = import ./home/nix-config.nix {inherit nixpkgs user;};
+      sharedOverlays = import ./home/overlays.nix {inherit pkgs inputs;};
       hosts = import ./systems {
         inherit
           host
@@ -23,7 +21,7 @@
           ;
       };
       hostDefaults = {
-        modules = import ./systems/hm-manager.nix {
+        modules = import ./home {
           inherit
             home
             host
@@ -33,62 +31,58 @@
             Config
             ;
         };
-        extraArgs = { inherit user; };
+        extraArgs = {inherit user;};
       };
-      outputsBuilder =
-        x:
-        let
-          formatter =
-            (import ./systems/formatters.nix {
-              inherit inputs;
-              pkgs = x.nixpkgs;
-            }).config.build.wrapper;
+      outputsBuilder = x: let
+        formatter =
+          (import ./home/formatters.nix {
+            inherit inputs;
+            pkgs = x.nixpkgs;
+          }).config.build.wrapper;
 
-          mkMicroVm =
-            name: configModule:
-            (nixpkgs.lib.nixosSystem {
-              inherit system;
-              modules = [
-                microvm.nixosModules.microvm
-                configModule
-              ];
-            }).config.microvm.declaredRunner;
-          Packages = import ./lib/packages.nix {
-            inherit (nixpkgs) lib;
-            inherit inputs user;
-            home-lib = home.lib;
-            pkgs = nixpkgs.legacyPackages.${system};
-          };
-
-          packages = {
-            inherit (x.nixpkgs) wizard;
-            zv = Packages "mnw";
-            firefox = Packages "firefox";
-            opencode = Packages "opencode";
-            default = mkMicroVm "default-vm" (
-              import ./systems/microvm.nix {
-                inherit inputs config;
-                pkgs = nixpkgs;
-              }
-            );
-          };
-        in
-        {
-          inherit packages formatter;
+        mkMicroVm = name: configModule:
+          (nixpkgs.lib.nixosSystem {
+            inherit system;
+            modules = [
+              microvm.nixosModules.microvm
+              configModule
+            ];
+          }).config.microvm.declaredRunner;
+        Packages = import ./lib/packages.nix {
+          inherit (nixpkgs) lib;
+          inherit inputs user;
+          home-lib = home.lib;
+          pkgs = nixpkgs.legacyPackages.${system};
         };
+
+        packages = {
+          inherit (x.nixpkgs) wizard;
+          zv = Packages "mnw";
+          firefox = Packages "firefox";
+          opencode = Packages "opencode";
+          default = mkMicroVm "default-vm" (
+            import ./systems/microvm.nix {
+              inherit inputs config;
+              pkgs = nixpkgs;
+            }
+          );
+        };
+      in {
+        inherit packages formatter;
+      };
     in
-    utils.lib.mkFlake {
-      inherit
-        self
-        inputs
-        sharedOverlays
-        channelsConfig
-        outputsBuilder
-        hostDefaults
-        hosts
-        ;
-      supportedSystems = [ system ];
-    };
+      utils.lib.mkFlake {
+        inherit
+          self
+          inputs
+          sharedOverlays
+          channelsConfig
+          outputsBuilder
+          hostDefaults
+          hosts
+          ;
+        supportedSystems = [system];
+      };
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     utils.url = "github:gytis-ivaskevicius/flake-utils-plus";
@@ -121,6 +115,5 @@
     };
     hyprland.url = "github:hyprwm/Hyprland";
     warp.url = "github:jordangarrison/warp-preview-flake";
-    # caelestia-dots.url = "github:Markus328/caelestia-nix";
   };
 }

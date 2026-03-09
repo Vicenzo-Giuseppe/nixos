@@ -28,11 +28,12 @@ in {
   };
   nixos = lib.mkIf enabled {};
 }
-      # file.wezterm = {
-      #   inherit source;
-      #   target = ".config/wezterm";
-      # };
-      # file.xplr = {
-      #   source = source2;
-      #   target = ".config/xplr";
-      # };
+# file.wezterm = {
+#   inherit source;
+#   target = ".config/wezterm";
+# };
+# file.xplr = {
+#   source = source2;
+#   target = ".config/xplr";
+# };
+

@@ -4,8 +4,7 @@
   config,
   host,
   ...
-}:
-let
+}: let
   fullname = "Vicenzo Giuseppe Furno Baptista";
   nixpkgs = "nixpkgs=/etc/nixpkgs";
   groups = [
@@ -22,8 +21,7 @@ let
   en_US = "en_US.UTF-8";
   pt_BR = "pt_BR.UTF-8";
   timezone = "America/Sao_Paulo";
-in
-{
+in {
   networking = {
     hostName = host;
     networkmanager.enable = true;
@@ -31,7 +29,7 @@ in
   time.timeZone = timezone;
   i18n = {
     defaultLocale = pt_BR;
-      consoleKeyMap = "br-abnt2";
+    consoleKeyMap = "br-abnt2";
     extraLocaleSettings = {
       LC_ADDRESS = pt_BR;
       LC_IDENTIFICATION = pt_BR;

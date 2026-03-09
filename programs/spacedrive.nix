@@ -4,14 +4,12 @@
   user,
   enabled,
   ...
-}:
-let
+}: let
   httpPort = 18080;
   serverPort = 18081;
   p2pPort = 7373;
-in
-{
-  home = lib.mkIf enabled { };
+in {
+  home = lib.mkIf enabled {};
   nixos = lib.mkIf enabled {
     services.caddy = {
       enable = true;
@@ -26,9 +24,9 @@ in
     };
     systemd.services.spacedrive-server = {
       description = "Spacedrive v2 server (headless RPC)";
-      wantedBy = [ "multi-user.target" ];
-      after = [ "network-online.target" ];
-      wants = [ "network-online.target" ];
+      wantedBy = ["multi-user.target"];
+      after = ["network-online.target"];
+      wants = ["network-online.target"];
       serviceConfig = {
         Type = "simple";
         User = user;
@@ -51,6 +49,6 @@ in
       httpPort
       serverPort
     ];
-    networking.firewall.allowedUDPPorts = [ p2pPort ];
+    networking.firewall.allowedUDPPorts = [p2pPort];
   };
 }

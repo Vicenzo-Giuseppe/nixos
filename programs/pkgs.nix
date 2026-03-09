@@ -4,13 +4,11 @@
   lib,
   enabled,
   ...
-}:
-let
-  inherit (inputs)
+}: let
+  inherit
+    (inputs)
     warp
-    systemd
     nix-ai-tools
-    nixpkgs
     ;
   pkgs_ = with pkgs; [
     # gradle
@@ -18,6 +16,8 @@ let
     # pnpm
     # rustc
     # pkg-config
+    gh
+    affine
     glib
     gdk-pixbuf
     gdtoolkit_4
@@ -224,10 +224,9 @@ let
   ];
   kotlin-lsp = inputs.kotlin-lsp.packages.x86_64-linux.default;
   pkgs__ = pkgs_ ++ node ++ python_ ++ nix-ai;
-in
-{
+in {
   home = lib.mkIf enabled {
     home.packages = pkgs__;
   };
-  nixos = lib.mkIf enabled { };
+  nixos = lib.mkIf enabled {};
 }

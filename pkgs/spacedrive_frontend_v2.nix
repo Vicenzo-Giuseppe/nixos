@@ -28,7 +28,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     homepage = "https://github.com/spacedriveapp/spacedrive";
     changelog = "https://github.com/spacedriveapp/spacedrive/releases/tag/${finalAttrs.version}";
     license = licenses.agpl3Plus;
-    sourceProvenance = with sourceTypes; [ binaryNativeCode ];
-    platforms = [ "x86_64-linux" ];
+    sourceProvenance = with sourceTypes; [binaryNativeCode];
+    platforms = ["x86_64-linux"];
   };
 })
