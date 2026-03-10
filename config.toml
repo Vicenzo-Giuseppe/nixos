@@ -25,4 +25,5 @@ spicetify = true   # Spotify with PIRACYYY OH YEAH
 steam = true       # Games
 localsend = true   # Send files-fast thought local WIFI
 caelestia = true   # 
-#spacedrive = true # in-work for being default file manager
+soft-serve = true  # 
+spacedrive = true  # in-devlopment-work for being default file manager

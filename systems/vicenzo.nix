@@ -55,6 +55,9 @@ in {
     extraGroups = groups;
     shell = pkgs.zsh;
     password = "[";
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEH4DiQuvyxkaY88E2WxNGBMYi9F6tKv2SrQ8qo29I61 root@notebook"
+    ];
   };
   fonts.packages = with pkgs.nerd-fonts; [
     fira-code

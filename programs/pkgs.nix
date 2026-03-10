@@ -14,8 +14,6 @@ let
     # gradle
     git
     # pnpm
-    spacedrive # pkgs/spacedrive 0.20.4v
-    soft-serve
     # rustc
     # pkg-config
     gh
