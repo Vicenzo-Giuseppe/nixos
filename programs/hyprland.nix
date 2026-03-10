@@ -20,6 +20,7 @@ in
       settings = {
         "$mod" = "SUPER";
         "$terminal" = "warp";
+        "$file-manager" = "spacedrive";
         "$browser" = "zen-twilight";
         "$editor" = "zv";
         "$volumeStep" = "10";
@@ -90,7 +91,7 @@ in
           # Apps
           "SUPER, E, exec, $terminal"
           "SUPER, W, exec, $browser"
-          #"SUPER, T, exec, $editor"
+          "SUPER, T, exec, $file-manager"
 
           # Screenshot & colour picker
           "Ctrl+Alt, C, exec, hyprpicker -a"

@@ -52,6 +52,23 @@
   services = {
     envfs.enable = true; # BinarySupport
     thermald.enable = true; # ThermalManagent ( ex fan speed % x Temperature)
+    pipewire.wireplumber.extraConfig."51-alsa-profile" = {
+      "monitor.alsa.rules" = [
+        {
+          matches = [
+            {
+              "device.name" = "alsa_card.pci-0000_00_1f.3";
+            }
+          ];
+          actions = {
+            update-props = {
+              # Keep the internal mic available by default.
+              "device.profile" = "output:analog-stereo+input:analog-stereo";
+            };
+          };
+        }
+      ];
+    };
   };
   programs = {
     nix-ld.enable = true; # BinarySupport
