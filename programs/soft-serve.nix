@@ -68,6 +68,41 @@ in {
       SOFT_SERVE_SSH_BIN = "${pkgs.openssh}/bin/ssh";
     };
 
+    systemd.services.soft-serve-hooks-fix = {
+      description = "Fix Soft Serve hook permissions";
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+      };
+      script = ''
+        set -euo pipefail
+
+        data_root="/var/lib/soft-serve"
+        hooks_root="$data_root/hooks"
+        repos_root="$data_root/repos"
+
+        if [ -d "$hooks_root" ]; then
+          ${pkgs.findutils}/bin/find "$hooks_root" -type f ! -perm -111 -exec chmod 755 {} + || true
+        fi
+
+        if [ -d "$repos_root" ]; then
+          ${pkgs.findutils}/bin/find "$repos_root" -path '*/hooks' -type d ! -perm -111 -exec chmod 755 {} + || true
+          ${pkgs.findutils}/bin/find "$repos_root" -path '*/hooks/*' -type f ! -perm -111 -exec chmod 755 {} + || true
+        fi
+      '';
+    };
+
+    systemd.paths.soft-serve-hooks-fix = {
+      wantedBy = [ "multi-user.target" ];
+      pathConfig = {
+        PathExists = [ "/var/lib/soft-serve/hooks" ];
+        PathExistsGlob = [
+          "/var/lib/soft-serve/hooks/*"
+          "/var/lib/soft-serve/repos/*/hooks"
+        ];
+      };
+    };
+
     systemd.services.soft-serve.preStart = ''
       ${pkgs.coreutils}/bin/install -d -m 0700 /var/lib/soft-serve/ssh /var/lib/soft-serve/hooks
 
@@ -75,7 +110,7 @@ in {
         ${pkgs.openssh}/bin/ssh-keygen -t ed25519 -a 64 -f "${githubDeployKeyPath}" -N "" -C "vault8->github"
       fi
 
-      ${pkgs.coreutils}/bin/ln -sf ${./soft-serve-github-mirror.sh} /var/lib/soft-serve/hooks/post-receive
+      ${pkgs.coreutils}/bin/install -m 0755 ${./soft-serve-github-mirror.sh} /var/lib/soft-serve/hooks/post-receive
     '';
 
     networking.firewall.allowedTCPPorts = [
