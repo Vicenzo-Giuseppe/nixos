@@ -6,33 +6,37 @@
   inputs,
   system,
   Config,
-}: let
+}:
+let
   colors = import ./colors.nix;
-  inherit
-    (inputs)
+  inherit (inputs)
     mnw
     spicetify
     cosmic-manager
     sops
+    spacebot
     caelestia
     zen-browser
     ;
-in [
+in
+[
   home.nixosModules.home-manager
   {
     home-manager = {
       useGlobalPkgs = true;
       useUserPackages = true;
-      users.${user} = {...}: {
-        imports = [
-          zen-browser.homeModules.twilight
-          cosmic-manager.homeManagerModules.default
-          mnw.homeManagerModules.default
-          sops.homeManagerModules.default
-          caelestia.homeManagerModules.default
-          ../lib/home.nix
-        ];
-      };
+      users.${user} =
+        { ... }:
+        {
+          imports = [
+            zen-browser.homeModules.twilight
+            cosmic-manager.homeManagerModules.default
+            mnw.homeManagerModules.default
+            sops.homeManagerModules.default
+            caelestia.homeManagerModules.default
+            ../lib/home.nix
+          ];
+        };
       extraSpecialArgs = {
         inherit
           host
@@ -46,5 +50,6 @@ in [
     };
   }
   spicetify.nixosModules.spicetify
+  spacebot.nixosModules.default
   sops.nixosModules.sops
 ]

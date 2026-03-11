@@ -4,12 +4,9 @@
   lib,
   enabled,
   ...
-}: let
-  inherit
-    (inputs)
-    warp
-    nix-ai-tools
-    ;
+}:
+let
+  inherit (inputs) warp;
   pkgs_ = with pkgs; [
     # gradle
     git
@@ -210,9 +207,13 @@
     #steam-tui
     #steamcmd
   ];
-  nix-ai = with nix-ai-tools.packages.x86_64-linux; [
-    #   crush
-  ];
+  nix-ai =
+    if inputs ? nix-ai-tools
+    then
+      with inputs.nix-ai-tools.packages.x86_64-linux; [
+        #   crush
+      ]
+    else [ ];
   node = with pkgs.nodePackages; [
     #npm
   ];
@@ -222,11 +223,11 @@
   xorg_ = with pkgs.xorg; [
     # xrandr libX11 libXinerama
   ];
-  kotlin-lsp = inputs.kotlin-lsp.packages.x86_64-linux.default;
   pkgs__ = pkgs_ ++ node ++ python_ ++ nix-ai;
-in {
+in
+{
   home = lib.mkIf enabled {
     home.packages = pkgs__;
   };
-  nixos = lib.mkIf enabled {};
+  nixos = lib.mkIf enabled { };
 }

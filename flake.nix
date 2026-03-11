@@ -1,17 +1,19 @@
 {
-  outputs = inputs @ {
-    self,
-    home,
-    nixpkgs,
-    microvm,
-    utils,
-    ...
-  }:
-    with builtins; let
+  outputs =
+    inputs@{
+      self,
+      home,
+      nixpkgs,
+      microvm,
+      utils,
+      ...
+    }:
+    with builtins;
+    let
       Config = fromTOML (readFile ./config.toml);
       inherit (Config) system host user;
-      channelsConfig = import ./home/nix-config.nix {inherit nixpkgs user;};
-      sharedOverlays = import ./home/overlays.nix {inherit pkgs inputs;};
+      channelsConfig = import ./home/nix-config.nix { inherit nixpkgs user; };
+      sharedOverlays = import ./home/overlays.nix { inherit inputs; };
       hosts = import ./systems {
         inherit
           host
@@ -31,58 +33,62 @@
             Config
             ;
         };
-        extraArgs = {inherit user;};
+        extraArgs = { inherit user; };
       };
-      outputsBuilder = x: let
-        formatter =
-          (import ./home/formatters.nix {
-            inherit inputs;
-            pkgs = x.nixpkgs;
-          }).config.build.wrapper;
+      outputsBuilder =
+        x:
+        let
+          formatter =
+            (import ./home/formatters.nix {
+              inherit inputs;
+              pkgs = x.nixpkgs;
+            }).config.build.wrapper;
 
-        mkMicroVm = name: configModule:
-          (nixpkgs.lib.nixosSystem {
-            inherit system;
-            modules = [
-              microvm.nixosModules.microvm
-              configModule
-            ];
-          }).config.microvm.declaredRunner;
-        Packages = import ./lib/packages.nix {
-          inherit (nixpkgs) lib;
-          inherit inputs user;
-          home-lib = home.lib;
-          pkgs = nixpkgs.legacyPackages.${system};
-        };
+          mkMicroVm =
+            name: configModule:
+            (nixpkgs.lib.nixosSystem {
+              inherit system;
+              modules = [
+                microvm.nixosModules.microvm
+                configModule
+              ];
+            }).config.microvm.declaredRunner;
+          Packages = import ./lib/packages.nix {
+            inherit (nixpkgs) lib;
+            inherit inputs user;
+            home-lib = home.lib;
+            pkgs = nixpkgs.legacyPackages.${system};
+          };
 
-        packages = {
-          inherit (x.nixpkgs) wizard;
-          zv = Packages "mnw";
-          firefox = Packages "firefox";
-          opencode = Packages "opencode";
-          default = mkMicroVm "default-vm" (
-            import ./systems/vm.nix {
-              inherit inputs user;
-              pkgs = nixpkgs;
-            }
-          );
+          packages = {
+            inherit (x.nixpkgs) wizard;
+            zv = Packages "mnw";
+            firefox = Packages "firefox";
+            opencode = Packages "opencode";
+            default = mkMicroVm "default-vm" (
+              import ./systems/vm.nix {
+                inherit inputs user;
+                pkgs = nixpkgs;
+              }
+            );
+          };
+        in
+        {
+          inherit packages formatter;
         };
-      in {
-        inherit packages formatter;
-      };
     in
-      utils.lib.mkFlake {
-        inherit
-          self
-          inputs
-          sharedOverlays
-          channelsConfig
-          outputsBuilder
-          hostDefaults
-          hosts
-          ;
-        supportedSystems = [system];
-      };
+    utils.lib.mkFlake {
+      inherit
+        self
+        inputs
+        sharedOverlays
+        channelsConfig
+        outputsBuilder
+        hostDefaults
+        hosts
+        ;
+      supportedSystems = [ system ];
+    };
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     utils.url = "github:gytis-ivaskevicius/flake-utils-plus";
@@ -115,5 +121,10 @@
     };
     hyprland.url = "github:hyprwm/Hyprland";
     warp.url = "github:jordangarrison/warp-preview-flake";
+    spacebot-src = {
+      url = "github:spacedriveapp/spacebot";
+      flake = false;
+    };
+    spacebot.url = "github:skulldogged/spacebot-nix";
   };
 }

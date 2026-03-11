@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  user,
   enabled,
   ...
 }: let
@@ -98,7 +99,7 @@ in {
       ];
     };
     # Permissões
-    users.users.vicenzo.extraGroups = ["aria2"];
+    users.users.${user}.extraGroups = ["aria2"];
     systemd.tmpfiles.rules = [
       "d /var/lib/aria2/Downloads 0775 aria2 aria2 -"
     ];
