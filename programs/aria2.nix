@@ -15,9 +15,9 @@ in {
     services.aria2 = {
       enable = true;
       rpcSecretFile = "/var/lib/aria2/secret";
-      rpcListenPort = aria2Port;
       openPorts = true;
       settings = {
+        rpc-listen-port = aria2Port;
         rpc-listen-all = true;
         rpc-allow-origin-all = true;
         rpc-secure = false;

@@ -44,12 +44,7 @@ in
         };
 
     # Handle different module formats
-    moduleToUse =
-      if progModule ? config
-      then progModule.config
-      else if progModule ? home
-      then progModule.home
-      else progModule;
+    moduleToUse = progModule.config or (progModule.home or progModule);
 
     # Build sops config - use envs.yaml if exists, otherwise empty
     sopsConfig =
@@ -77,8 +72,7 @@ in
       if hasExternalHMModule
       then [hmModule]
       else
-        []
-        ++ lib.optional hasSopsModule sopsModule
+        lib.optional hasSopsModule sopsModule
         ++ lib.optional (sopsConfig != {}) sopsConfig
         ++ [moduleToUse];
 
@@ -123,15 +117,13 @@ in
 
     # Priority: finalPackage > package > flake input > nixpkgs
     finalPkg =
-      if progConfig ? finalPackage
-      then progConfig.finalPackage
-      else if progConfig ? package
-      then progConfig.package
-      else if hasFlakeInput
-      then flakePkg
-      else if hmResult.success
-      then pkgs.${pkgName} or (throw "Package '${pkgName}' not in nixpkgs")
-      else pkgs.${pkgName} or (throw "Package '${pkgName}' not found");
+      progConfig.finalPackage or (progConfig.package or (
+        if hasFlakeInput
+        then flakePkg
+        else if hmResult.success
+        then pkgs.${pkgName} or (throw "Package '${pkgName}' not in nixpkgs")
+        else pkgs.${pkgName} or (throw "Package '${pkgName}' not found")
+      ));
 
     warnMsg =
       if hmConfig == null

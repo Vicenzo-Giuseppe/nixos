@@ -18,16 +18,16 @@
   # Mantendo a semântica original de categorias, mas "fingindo" que
   # a única categoria existente se chama "default" ou "programs"
   programDb = {
-    all = map cleanName allProgramsRaw;
+    all = builtins.map cleanName allProgramsRaw;
   };
 
   # Mantendo as variáveis que seu código espera:
-  all = programDb.all;
+  inherit (programDb) all;
 
   categories = ["all"]; # Agora só existe uma categoria virtual
 
   # Mapeia cada programa para a categoria virtual "all"
-  toCat = builtins.listToAttrs (map (p: {
+  toCat = builtins.listToAttrs (builtins.map (p: {
       name = p;
       value = "all";
     })
@@ -41,7 +41,7 @@ in {
     ;
 
   # Ajustado para procurar direto na raiz de programsDir
-  path = program: type: let
+  path = program: _type: let
     # Verifica se existe a pasta com default.nix ou o arquivo .nix direto
     isDir = builtins.pathExists (programsDir + "/${program}/default.nix");
   in

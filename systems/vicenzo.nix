@@ -29,7 +29,6 @@ in {
   time.timeZone = timezone;
   i18n = {
     defaultLocale = pt_BR;
-    consoleKeyMap = "br-abnt2";
     extraLocaleSettings = {
       LC_ADDRESS = pt_BR;
       LC_IDENTIFICATION = pt_BR;
@@ -42,6 +41,7 @@ in {
       LC_TIME = pt_BR;
     };
   };
+  console.keyMap = "br-abnt2";
   environment.etc.nixpkgs.source = pkgs.path;
   nix = {
     nixPath = [

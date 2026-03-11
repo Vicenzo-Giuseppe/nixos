@@ -5,11 +5,10 @@
   enabled,
   lib,
   ...
-}: let
-in {
+}: {
   home = {config, ...}: let
     inherit (config.lib) cosmic;
-    mkRON = cosmic.mkRON;
+    inherit (cosmic) mkRON;
   in
     lib.mkIf enabled {
       # Configure COSMIC desktop settings

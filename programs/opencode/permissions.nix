@@ -1,5 +1,4 @@
-{inputs, ...}: let
-in {
+{inputs, ...}: {
   programs.opencode.settings.permission = {
     edit = "ask";
     bash = {

@@ -12,7 +12,8 @@
   x = "eza --color=always --icons --group-directories-first -F ";
   overview = "--no-time --no-user --no-filesize --no-permissions";
 in {
-  home = lib.mkIf enabled {
+  home = {config, ...}:
+    lib.mkIf enabled {
     home = {
       packages = with pkgs; [
         eza
@@ -21,6 +22,7 @@ in {
     };
     programs.zsh = {
       enable = true;
+      dotDir = config.home.homeDirectory;
       autocd = true;
       cdpath = map toString [/etc/nixos];
       #defaultKeymap = "vicmd";

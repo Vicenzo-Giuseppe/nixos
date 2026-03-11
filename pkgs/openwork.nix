@@ -23,17 +23,17 @@
   libnotify,
   libpulseaudio,
   libuuid,
-  libX11,
-  libXScrnSaver,
-  libXcomposite,
-  libXcursor,
-  libXdamage,
-  libXext,
-  libXfixes,
-  libXi,
-  libXrandr,
-  libXrender,
-  libXtst,
+  libx11,
+  libXss,
+  libxcomposite,
+  libxcursor,
+  libxdamage,
+  libxext,
+  libxfixes,
+  libxi,
+  libxrandr,
+  libxrender,
+  libxtst,
   libxcb,
   libxshmfence,
   mesa,
@@ -43,7 +43,7 @@
   systemd,
   webkitgtk_4_1,
   libsoup_3,
-  xorg,
+  libxkbfile,
   ...
 }: let
   pname = "openwork";
@@ -73,17 +73,17 @@
     libpulseaudio
     libsoup_3
     libuuid
-    libX11
-    libXScrnSaver
-    libXcomposite
-    libXcursor
-    libXdamage
-    libXext
-    libXfixes
-    libXi
-    libXrandr
-    libXrender
-    libXtst
+    libx11
+    libXss
+    libxcomposite
+    libxcursor
+    libxdamage
+    libxext
+    libxfixes
+    libxi
+    libxrandr
+    libxrender
+    libxtst
     libxcb
     libxshmfence
     mesa
@@ -92,7 +92,7 @@
     pango
     systemd
     webkitgtk_4_1
-    xorg.libxkbfile
+    libxkbfile
   ];
 in
   stdenv.mkDerivation {

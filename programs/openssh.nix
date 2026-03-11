@@ -1,5 +1,6 @@
 {
   lib,
+  user,
   enabled,
   ...
 }: {
@@ -10,7 +11,7 @@
     services.openssh = {
       enable = true;
       settings = {
-        AllowUsers = ["vicenzo"];
+        AllowUsers = [user];
         PasswordAuthentication = false;
       };
       hostKeys = [

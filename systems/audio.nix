@@ -1,5 +1,4 @@
-{...}: let
-in {
+_: {
   services = {
     pipewire = {
       enable = true;

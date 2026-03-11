@@ -1,4 +1,4 @@
-{...}: let
+_: let
   imports = [
     ./hardware.nix
     ./filesystem.nix

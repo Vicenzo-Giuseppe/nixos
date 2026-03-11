@@ -4,8 +4,7 @@
   user,
   Config,
   ...
-}: let
-in {
+}: {
   ${host} = {
     modules = [
       ./${user}.nix

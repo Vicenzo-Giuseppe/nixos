@@ -2,8 +2,7 @@
   lib,
   enabled,
   ...
-}: let
-in {
+}: {
   home = lib.mkIf enabled {
     xdg = {
       enable = true;

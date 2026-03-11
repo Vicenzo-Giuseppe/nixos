@@ -3,14 +3,8 @@
   user,
   enabled,
   ...
-}:
-let
-in
-{
-  home = lib.mkIf enabled {
-    home.packages = [
-    ];
-  };
+}: {
+  home = lib.mkIf enabled { };
   nixos = lib.mkIf enabled {
     services.spacebot = {
       enable = true;

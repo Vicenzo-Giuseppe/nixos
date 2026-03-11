@@ -16,17 +16,18 @@ in {
   imports = [
     home.nixosModules.home-manager
   ];
-
-  home-manager.useGlobalPkgs = true;
-  home-manager.useUserPackages = true;
-  home-manager.users.vmuser = {pkgs, ...}: {
-    home.stateVersion = "24.11";
-    home.packages = with pkgs; [
-      vim
-      git
-    ];
-    programs.bash.enable = true;
-    programs.home-manager.enable = true;
+  home-manager = {
+    useGlobalPkgs = true;
+    useUserPackages = true;
+    users.vmuser = {pkgs, ...}: {
+      home.stateVersion = "24.11";
+      home.packages = with pkgs; [
+        vim
+        git
+      ];
+      programs.bash.enable = true;
+      programs.home-manager.enable = true;
+    };
   };
 
   # ============================================
@@ -57,10 +58,12 @@ in {
     ];
   };
   # Drivers de vídeo para SPICE
-  services.xserver = {
-    enable = true;
-    videoDrivers = ["qxl"]; # Driver recomendado para SPICE
+  services = {
+    xserver = {
+      enable = true;
+      videoDrivers = ["qxl"]; # Driver recomendado para SPICE
+      desktopManager.xfce.enable = true;
+    };
+    spice-vdagentd.enable = true;
   };
-  services.spice-vdagentd.enable = true;
-  services.xserver.desktopManager.xfce.enable = true;
 }

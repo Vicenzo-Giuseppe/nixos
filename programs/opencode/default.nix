@@ -6,6 +6,7 @@
   ...
 }: let
   inherit (inputs) opencode;
+  bashExe = "${pkgs.bash}/bin/bash";
 in {
   home = {config, ...}:
     with builtins; let
@@ -88,27 +89,20 @@ in {
             exa = {
               enabled = true;
               command = [
-                "npx"
-                "-y"
-                "exa-mcp-server"
-                "tools=web_search_exa,get_code_context_exa,crawling_exa,company_research_exa"
+                bashExe
+                "-lc"
+                ''EXA_API_KEY="$(<${env.EXA_API_KEY.path})" exec npx -y exa-mcp-server "tools=web_search_exa,get_code_context_exa,crawling_exa,company_research_exa"''
               ];
               type = "local";
-              environment = {
-                EXA_API_KEY = env.EXA_API_KEY.path;
-              };
             };
             github = {
               enabled = true;
               command = [
-                "npx"
-                "-y"
-                "@modelcontextprotocol/server-github"
+                bashExe
+                "-lc"
+                ''GITHUB_PERSONAL_ACCESS_TOKEN="$(<${env.GITHUB_PERSONAL_ACCESS_TOKEN.path})" exec npx -y @modelcontextprotocol/server-github''
               ];
               type = "local";
-              environment = {
-                GITHUB_PERSONAL_ACCESS_TOKEN = env.GITHUB_PERSONAL_ACCESS_TOKEN.path;
-              };
             };
             blender = {
               enabled = true;
@@ -122,13 +116,10 @@ in {
               enabled = true;
               type = "local";
               command = [
-                "npx"
-                "-y"
-                "firecrawl-mcp"
+                bashExe
+                "-lc"
+                ''FIRECRAWL_API_KEY="$(<${env.FIRECRAWL_API_KEY.path})" exec npx -y firecrawl-mcp''
               ];
-              environment = {
-                FIRECRAWL_API_KEY = env.FIRECRAWL_API_KEY.path;
-              };
             };
             firefox-mcp = {
               enabled = true;
@@ -190,7 +181,7 @@ in {
 
       avahi = {
         enable = false;
-        nssmdns = true; # or nssmdns4 for IPv4-only if you have IPv6 issues
+        nssmdns4 = true;
         publish = {
           enable = true;
           addresses = true;

@@ -3,11 +3,8 @@
   lib,
   enabled,
   ...
-}: let
-in {
-  home =
-    lib.mkIf enabled {
-    };
+}: {
+  home = lib.mkIf enabled { };
   nixos = lib.mkIf enabled {
     security.wrappers.btop = {
       owner = "root";

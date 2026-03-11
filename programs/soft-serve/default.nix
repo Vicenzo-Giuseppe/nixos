@@ -23,12 +23,19 @@
   statsPort = 23233;
   publicHost = host;
   localSoftServeUser = user;
+  restrictSoftServeToLan = false;
+  lanCidrs = [
+    "10.0.0.0/8"
+    "172.16.0.0/12"
+    "192.168.0.0/16"
+  ];
   localSoftServeKey =
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEH4DiQuvyxkaY88E2WxNGBMYi9F6tKv2SrQ8qo29I61";
 in {
   home = lib.mkIf enabled {
     programs.ssh = {
       enable = true;
+      enableDefaultConfig = false;
       matchBlocks."${softServeName}" = {
         hostname = "localhost";
         port = sshPort;
@@ -63,17 +70,24 @@ in {
       };
     };
 
-    systemd.services.soft-serve.environment = {
-      GIT_CONFIG_GLOBAL = gitConfigPath;
-      SOFT_SERVE_MIRROR_HOOK = mirrorHookPath;
-      SOFT_SERVE_MIRROR_REPO = githubRepo;
-      SOFT_SERVE_MIRROR_REMOTE = githubRemote;
-      SOFT_SERVE_MIRROR_KEY = githubDeployKeyPath;
-      SOFT_SERVE_MIRROR_PUSH_OPTION = "git=true";
-      SOFT_SERVE_MIRROR_TAG = "publish";
-      SOFT_SERVE_MIRROR_SSH_OPTS = "-o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new";
-      SOFT_SERVE_GIT_BIN = "${pkgs.git}/bin/git";
-      SOFT_SERVE_SSH_BIN = "${pkgs.openssh}/bin/ssh";
+    systemd.services.soft-serve = {
+      environment = {
+        GIT_CONFIG_GLOBAL = gitConfigPath;
+        SOFT_SERVE_MIRROR_HOOK = mirrorHookPath;
+        SOFT_SERVE_MIRROR_REPO = githubRepo;
+        SOFT_SERVE_MIRROR_REMOTE = githubRemote;
+        SOFT_SERVE_MIRROR_KEY = githubDeployKeyPath;
+        SOFT_SERVE_MIRROR_PUSH_OPTION = "git=true";
+        SOFT_SERVE_MIRROR_TAG = "publish";
+        SOFT_SERVE_MIRROR_SSH_OPTS = "-o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new";
+        SOFT_SERVE_GIT_BIN = "${pkgs.git}/bin/git";
+        SOFT_SERVE_SSH_BIN = "${pkgs.openssh}/bin/ssh";
+      };
+      serviceConfig = {
+        StateDirectory = "soft-serve";
+        ReadWritePaths = ["/var/lib/soft-serve"];
+        NoNewPrivileges = true;
+      };
     };
 
     # systemd.services.soft-serve.preStart = ''
@@ -99,10 +113,28 @@ in {
     #
     # '';
     #
-    networking.firewall.allowedTCPPorts = [
-      sshPort
-      httpPort
-    ];
+    networking.firewall = {
+      allowedTCPPorts = [
+        sshPort
+        httpPort
+      ];
+      extraCommands = lib.mkIf restrictSoftServeToLan ''
+        ${lib.concatMapStringsSep "\n" (cidr: ''
+          iptables -I INPUT -p tcp --dport ${toString sshPort} -s ${cidr} -j ACCEPT
+          iptables -I INPUT -p tcp --dport ${toString httpPort} -s ${cidr} -j ACCEPT
+        '') lanCidrs}
+        iptables -A INPUT -p tcp --dport ${toString sshPort} -j DROP
+        iptables -A INPUT -p tcp --dport ${toString httpPort} -j DROP
+      '';
+      extraStopCommands = lib.mkIf restrictSoftServeToLan ''
+        ${lib.concatMapStringsSep "\n" (cidr: ''
+          iptables -D INPUT -p tcp --dport ${toString sshPort} -s ${cidr} -j ACCEPT 2>/dev/null || true
+          iptables -D INPUT -p tcp --dport ${toString httpPort} -s ${cidr} -j ACCEPT 2>/dev/null || true
+        '') lanCidrs}
+        iptables -D INPUT -p tcp --dport ${toString sshPort} -j DROP 2>/dev/null || true
+        iptables -D INPUT -p tcp --dport ${toString httpPort} -j DROP 2>/dev/null || true
+      '';
+    };
 
     systemd.services.soft-serve-bootstrap = {
       description = "Bootstrap Soft Serve local user";
@@ -127,6 +159,13 @@ in {
       serviceConfig = {
         Type = "oneshot";
         User = "root";
+        Restart = "on-failure";
+        RestartSec = "5s";
+        NoNewPrivileges = true;
+        PrivateTmp = true;
+        ProtectHome = true;
+        ProtectSystem = "strict";
+        ReadWritePaths = ["/var/lib/soft-serve"];
       };
       script = ''
         set -euo pipefail
