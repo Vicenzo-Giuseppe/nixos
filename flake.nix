@@ -13,7 +13,7 @@
       Config = fromTOML (readFile ./config.toml);
       inherit (Config) system host user;
       channelsConfig = import ./home/nix-config.nix { inherit nixpkgs user; };
-      sharedOverlays = import ./home/overlays.nix { inherit pkgs inputs; };
+      sharedOverlays = import ./home/overlays.nix { inherit inputs; };
       hosts = import ./systems {
         inherit
           host

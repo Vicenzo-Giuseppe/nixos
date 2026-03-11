@@ -10,7 +10,7 @@
   cfg = import ./config.nix {inherit lib;};
   prog = import ./programs.nix {inherit lib;};
   cfgFile = cfg.load ../config.toml;
-  colors = import ../systems/colors.nix;
+  colors = import ../home/colors.nix;
   enabledHome = builtins.filter (p: builtins.pathExists (prog.path p "home")) (cfg.enabled cfgFile);
 
   programConfigs =

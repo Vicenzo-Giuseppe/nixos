@@ -51,10 +51,9 @@ in {
   users.users."${user}" = {
     isNormalUser = true;
     description = fullname;
-    #hashedPasswordFile = config.sops.secrets.user_password.path;
+    hashedPasswordFile = config.sops.secrets.user_password.path;
     extraGroups = groups;
     shell = pkgs.zsh;
-    password = "[";
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEH4DiQuvyxkaY88E2WxNGBMYi9F6tKv2SrQ8qo29I61 root@notebook"
     ];

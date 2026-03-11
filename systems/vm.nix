@@ -14,7 +14,7 @@ in {
   users.users."${user}-vm" = {
     isNormalUser = true;
     home = "/home/${user}-vm";
-    password = "[";
+    hashedPassword = "!";
   };
 
   # Home Manager inside the VM
