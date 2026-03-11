@@ -7,7 +7,7 @@
   enabled,
   ...
 }: let
-  softServeName = "Vault8";
+  softServeName = "Vault7";
   adminUser = "admin";
   adminKey =
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP4ufgdzMLLhEEVXl6ZpfejX5zCR0uUb64CySve34e9v";
@@ -15,6 +15,9 @@
   githubRepo = "nixos";
   githubRemote = "git@github.com:${githubUser}/${githubRepo}.git";
   githubDeployKeyPath = "/var/lib/soft-serve/ssh/github_deploy";
+  gitHooksPath = "/var/lib/soft-serve/git-hooks";
+  gitConfigPath = "/var/lib/soft-serve/gitconfig";
+  mirrorHookPath = "${gitHooksPath}/post-receive.mirror";
   sshPort = 23231;
   httpPort = 23232;
   statsPort = 23233;
@@ -51,13 +54,18 @@ in {
           listen_addr = ":${toString httpPort}";
           public_url = "http://${publicHost}:${toString httpPort}";
         };
-        stats.listen_addr = "127.0.0.1:${toString statsPort}";
+        git.enabled = false;
+        stats = {
+          enabled = true;
+          listen_addr = "127.0.0.1:${toString statsPort}";
+        };
         initial_admin_keys = [ adminKey ];
       };
     };
 
     systemd.services.soft-serve.environment = {
-      SOFT_SERVE_INITIAL_ADMIN_KEYS = adminKey;
+      GIT_CONFIG_GLOBAL = gitConfigPath;
+      SOFT_SERVE_MIRROR_HOOK = mirrorHookPath;
       SOFT_SERVE_MIRROR_REPO = githubRepo;
       SOFT_SERVE_MIRROR_REMOTE = githubRemote;
       SOFT_SERVE_MIRROR_KEY = githubDeployKeyPath;
@@ -68,51 +76,29 @@ in {
       SOFT_SERVE_SSH_BIN = "${pkgs.openssh}/bin/ssh";
     };
 
-    systemd.services.soft-serve-hooks-fix = {
-      description = "Fix Soft Serve hook permissions";
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
-      };
-      script = ''
-        set -euo pipefail
-
-        data_root="/var/lib/soft-serve"
-        hooks_root="$data_root/hooks"
-        repos_root="$data_root/repos"
-
-        if [ -d "$hooks_root" ]; then
-          ${pkgs.findutils}/bin/find "$hooks_root" -type f ! -perm -111 -exec chmod 755 {} + || true
-        fi
-
-        if [ -d "$repos_root" ]; then
-          ${pkgs.findutils}/bin/find "$repos_root" -path '*/hooks' -type d ! -perm -111 -exec chmod 755 {} + || true
-          ${pkgs.findutils}/bin/find "$repos_root" -path '*/hooks/*' -type f ! -perm -111 -exec chmod 755 {} + || true
-        fi
-      '';
-    };
-
-    systemd.paths.soft-serve-hooks-fix = {
-      wantedBy = [ "multi-user.target" ];
-      pathConfig = {
-        PathExists = [ "/var/lib/soft-serve/hooks" ];
-        PathExistsGlob = [
-          "/var/lib/soft-serve/hooks/*"
-          "/var/lib/soft-serve/repos/*/hooks"
-        ];
-      };
-    };
-
-    systemd.services.soft-serve.preStart = ''
-      ${pkgs.coreutils}/bin/install -d -m 0700 /var/lib/soft-serve/ssh /var/lib/soft-serve/hooks
-
-      if [ ! -f "${githubDeployKeyPath}" ]; then
-        ${pkgs.openssh}/bin/ssh-keygen -t ed25519 -a 64 -f "${githubDeployKeyPath}" -N "" -C "vault8->github"
-      fi
-
-      ${pkgs.coreutils}/bin/install -m 0755 ${./soft-serve-github-mirror.sh} /var/lib/soft-serve/hooks/post-receive
-    '';
-
+    # systemd.services.soft-serve.preStart = ''
+    #   ${pkgs.coreutils}/bin/install -d -m 0700 /var/lib/soft-serve/ssh ${gitHooksPath} /var/lib/soft-serve/hooks
+    #
+    #   cat > ${gitConfigPath} <<'EOF'
+    #   [core]
+    #     hooksPath = ${gitHooksPath}
+    #   [receive]
+    #     advertisePushOptions = true
+    #   EOF
+    #   ${pkgs.coreutils}/bin/chmod 0644 ${gitConfigPath}
+    #
+    #   if [ ! -f "${githubDeployKeyPath}" ]; then
+    #     ${pkgs.openssh}/bin/ssh-keygen -t ed25519 -a 64 -f "${githubDeployKeyPath}" -N "" -C "vault8->github"
+    #   fi
+    #
+    #   ${pkgs.coreutils}/bin/install -m 0755 ${./soft-serve-hook-wrapper.sh} ${gitHooksPath}/pre-receive
+    #   ${pkgs.coreutils}/bin/install -m 0755 ${./soft-serve-hook-wrapper.sh} ${gitHooksPath}/update
+    #   ${pkgs.coreutils}/bin/install -m 0755 ${./soft-serve-hook-wrapper.sh} ${gitHooksPath}/post-update
+    #   ${pkgs.coreutils}/bin/install -m 0755 ${./soft-serve-hook-wrapper.sh} ${gitHooksPath}/post-receive
+    #   ${pkgs.coreutils}/bin/install -m 0755 ${./soft-serve-github-mirror.sh} ${mirrorHookPath}
+    #
+    # '';
+    #
     networking.firewall.allowedTCPPorts = [
       sshPort
       httpPort
