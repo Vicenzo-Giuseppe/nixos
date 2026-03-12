@@ -5,6 +5,7 @@
 }: {
   environment.systemPackages = [
     config.boot.kernelPackages.nvidiaPackages.stable
+    pkgs.v4l-utils # Webcam diagnostics (v4l2-ctl, qv4l2)
   ];
   services.xserver.videoDrivers = ["nvidia"]; # NvidiaGraphicsSupport
   hardware = {
@@ -23,7 +24,7 @@
       # proprietary driver (best for RTX 2050)
       open = false;
       nvidiaSettings = true;
-      powerManagement.enable = false;
+      powerManagement.enable = true;
       # PRIME hybrid graphics
       prime = {
         offload.enable = true;
@@ -44,13 +45,13 @@
     kernelParams = [
       "nvidia-drm.modeset=1" # Graphics Support
       "nvidia.NVreg_DynamicPowerManagement=0x02" # PowerGPUInteligence
-      "snd_hda_intel.model=alc257-laptop" # NotebookMicrophone
       "snd_hda_intel.dmic_detect=1" # NotebookMicrophone
       "snd_hda_intel.model=lenovo-headset-mode" # NotebookMicrophone
     ];
   };
   services = {
     envfs.enable = true; # BinarySupport
+    fwupd.enable = true; # Firmware updates
     thermald.enable = true; # ThermalManagent ( ex fan speed % x Temperature)
     pipewire.wireplumber.extraConfig."51-alsa-profile" = {
       "monitor.alsa.rules" = [

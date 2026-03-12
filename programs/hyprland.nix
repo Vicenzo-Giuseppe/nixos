@@ -32,23 +32,25 @@ in
           "__GLX_VENDOR_LIBRARY_NAME,nvidia"
         ];
         bind = [
-          # Window focus
-          "Ctrl, left, movefocus, l"
-          "Ctrl, right, movefocus, r"
-          "Ctrl, up, movefocus, u"
-          "Ctrl, down, movefocus, d"
+          # Window focus (directional + stack cycle)
+          "SUPER, H, movefocus, l"
+          "SUPER, L, movefocus, r"
+          "SUPER, K, movefocus, u"
+          "SUPER, J, movefocus, d"
+          "SUPER, S, cyclenext"
+          "SUPER, D, cyclenext, prev"
 
           # Move windows
-          "SUPER, left, movewindow, l"
-          "SUPER, right, movewindow, r"
-          "SUPER, up, movewindow, u"
-          "SUPER, down, movewindow, d"
+          "SUPER+Shift, H, movewindow, l"
+          "SUPER+Shift, L, movewindow, r"
+          "SUPER+Shift, K, movewindow, u"
+          "SUPER+Shift, J, movewindow, d"
 
           # Window actions
           "SUPER, Q, killactive,"
           "SUPER, F, fullscreen, 0"
-          #"SUPER+Alt, F, fullscreen, 1"
-          "SUPER, Space, togglefloating,"
+          "SUPER, Space, togglesplit"
+          "SUPER+Shift, Space, togglefloating,"
           "SUPER, P, pin"
           "Ctrl+SUPER, Backslash, centerwindow, 1"
 
@@ -58,6 +60,8 @@ in
           "SUPER+Shift, Comma, lockactivegroup, toggle"
 
           # Go to workspace
+          "SUPER, Tab, workspace, +1"
+          "SUPER+Ctrl, Tab, workspace, -1"
           "SUPER, 1, workspace, 1"
           "SUPER, 2, workspace, 2"
           "SUPER, 3, workspace, 3"
@@ -72,26 +76,29 @@ in
           "SUPER, mouse_up, workspace, +1"
 
           # Move window to workspace
-          "Shift+Alt, 1, movetoworkspace, 1"
-          "Shift+Alt, 2, movetoworkspace, 2"
-          "Shift+Alt, 3, movetoworkspace, 3"
-          "Shift+Alt, 4, movetoworkspace, 4"
-          "Shift+Alt, 5, movetoworkspace, 5"
-          "Shift+Alt, 6, movetoworkspace, 6"
-          "Shift+Alt, 7, movetoworkspace, 7"
-          "Shift+Alt, 8, movetoworkspace, 8"
-          "Shift+Alt, 9, movetoworkspace, 9"
-          "Shift+Alt, 0, movetoworkspace, 10"
-          "Shift+Alt, mouse_down, movetoworkspace, -1"
-          "Shift+Alt, mouse_up, movetoworkspace, +1"
-          "Shift+Alt, S, movetoworkspace, special:special"
+          "SUPER+Shift, Tab, movetoworkspace, +1"
+          "SUPER+Ctrl+Shift, Tab, movetoworkspace, -1"
+          "SUPER+Shift, 1, movetoworkspace, 1"
+          "SUPER+Shift, 2, movetoworkspace, 2"
+          "SUPER+Shift, 3, movetoworkspace, 3"
+          "SUPER+Shift, 4, movetoworkspace, 4"
+          "SUPER+Shift, 5, movetoworkspace, 5"
+          "SUPER+Shift, 6, movetoworkspace, 6"
+          "SUPER+Shift, 7, movetoworkspace, 7"
+          "SUPER+Shift, 8, movetoworkspace, 8"
+          "SUPER+Shift, 9, movetoworkspace, 9"
+          "SUPER+Shift, 0, movetoworkspace, 10"
+          "SUPER+Shift, mouse_down, movetoworkspace, -1"
+          "SUPER+Shift, mouse_up, movetoworkspace, +1"
+          "SUPER+Shift, S, movetoworkspace, special:special"
           "Ctrl+SUPER+Shift, up, movetoworkspace, special:special"
           "Ctrl+SUPER+Shift, down, movetoworkspace, e+0"
 
-          # Apps
+          # Apps and launcher
           "SUPER, E, exec, $terminal"
           "SUPER, W, exec, $browser"
           "SUPER, T, exec, $file-manager"
+          "SUPER, Z, exec, pkill fuzzel || fuzzel"
 
           # Screenshot & colour picker
           "Ctrl+Alt, C, exec, hyprpicker -a"
@@ -101,16 +108,6 @@ in
           # Resize split
           "SUPER, Minus, splitratio, -0.1"
           "SUPER, Equal, splitratio, 0.1"
-          # Workspace nav
-          "Ctrl+SUPER, right, workspace, +1"
-          "Ctrl+SUPER, left, workspace, -1"
-          "SUPER, Page_Up, workspace, -1"
-          "SUPER, Page_Down, workspace, +1"
-          # Move window to adjacent workspace
-          "SUPER+Alt, Page_Up, movetoworkspace, -1"
-          "SUPER+Alt, Page_Down, movetoworkspace, +1"
-          "Ctrl+SUPER+Shift, right, movetoworkspace, +1"
-          "Ctrl+SUPER+Shift, left, movetoworkspace, -1"
           # Window group cycle
           "Alt, Tab, cyclenext"
           "Shift+Alt, Tab, cyclenext, prev"
@@ -129,7 +126,7 @@ in
           ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
           "SUPER+Shift, M, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
           # Sleep
-          "SUPER+Shift, L, exec, systemctl suspend-then-hibernate"
+          "SUPER+Shift, Escape, exec, systemctl suspend-then-hibernate"
         ];
 
         bindle = [
@@ -144,7 +141,14 @@ in
         input = {
           kb_layout = "br";
           kb_variant = "abnt2";
-          touchpad.natural_scroll = true;
+          # libinput edge scrolling for touchpads (vertical scrolling on edge zone).
+          # Note: libinput uses the right edge for vertical edge scroll.
+          scroll_method = "edge";
+          touchpad = {
+            natural_scroll = true;
+            disable_while_typing = true;
+            scroll_factor = 1.0;
+          };
         };
 
         cursor = {
@@ -223,7 +227,7 @@ in
       CLUTTER_BACKEND = "wayland";
       QT_QPA_PLATFORMTHEME = "qt5ct";
       QT_QPA_PLATFORM = "wayland;xcb";
-      LIBVA_DRIVER_NAME = "nvidia";
+      LIBVA_DRIVER_NAME = "iHD";
       GBM_BACKEND = "nvidia-drm";
       __GLX_VENDOR_LIBRARY_NAME = "nvidia";
       WLR_NO_HARDWARE_CURSORS = "1"; # Fixes invisible cursor on NVIDIA

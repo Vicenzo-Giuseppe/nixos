@@ -72,6 +72,7 @@
               }
             );
           };
+
         in
         {
           inherit packages formatter;

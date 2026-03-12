@@ -3,73 +3,75 @@
   lib,
   enabled,
   ...
-}: let
-  username = with lib;
-    toUpper (substring 0 1 user) + substring 1 (-1) user;
-in {
-  home = {colors, ...}:
+}:
+let
+  username = with lib; toUpper (substring 0 1 user) + substring 1 (-1) user;
+in
+{
+  home =
+    { colors, ... }:
     lib.mkIf enabled {
       programs.starship = {
         enable = true;
         enableZshIntegration = true;
-        settings = with colors {}; {
+        settings = with colors { }; {
           add_newline = false;
           format = lib.concatStrings [
             "$username"
             "$hostname"
-            "$os"
-            "$battery"
-            "$shlvl"
-            "$directory"
-            "$git_branch"
-            "$git_commit"
-            "$git_state"
-            "$git_status"
-            "$hg_branch"
-            "$custom"
-            "$docker_context"
-            "$package"
-            "$cmake"
-            "$dart"
-            "$dotnet"
-            "$elixir"
-            "$lua"
-            "$elm"
-            "$erlang"
-            "$golang"
-            "$helm"
-            "$java"
-            "$julia"
-            "$kotlin"
-            "$nim"
-            "$nodejs"
-            "$ocaml"
-            "$perl"
-            "$php"
-            "$purescript"
-            "$python"
-            "$ruby"
-            "$rust"
-            "$swift"
-            "$terraform"
-            "$vagrant"
-            "$zig"
-            "$nix_shell"
-            "$sudo"
-            "$conda"
-            "$memory_usage"
-            "$aws"
-            "$gcloud"
-            "$openstack"
-            "$env_var"
-            "$crystal"
-            "$cmd_duration"
-            "$fill"
-            "$time"
-            "$line_break"
-            "$jobs"
-            "$status"
-            "$character"
+            # "$os"
+            # "$battery"
+            # "$shlvl"
+            # "$directory"
+            # "$git_branch"
+            # "$git_commit"
+            # "$git_state"
+            # "$git_status"
+            # "$hg_branch"
+            # "$custom"
+            # "$docker_context"
+            # "$package"
+            # "$cmake"
+            # "$dart"
+            # "$dotnet"
+            # "$elixir"
+            # "$lua"
+            # "$elm"
+            # "$erlang"
+            # "$golang"
+            # "$helm"
+            # "$java"
+            # "$julia"
+            # "$kotlin"
+            # "$nim"
+            # "$nodejs"
+            # "$ocaml"
+            # "$perl"
+            # "$php"
+            # "$purescript"
+            # "$python"
+            # "$ruby"
+            # "$rust"
+            # "$swift"
+            # "$terraform"
+            # "$vagrant"
+            # "$zig"
+            # "$nix_shell"
+            # "$sudo"
+            # "$conda"
+            # "$memory_usage"
+            # "$aws"
+            # "$gcloud"
+            # "$openstack"
+            # "$env_var"
+            # "$crystal"
+            # "$cmd_duration"
+            # "$fill"
+            # "$time"
+            # "$line_break"
+            # "$jobs"
+            # "$status"
+            # "$character"
           ];
           scan_timeout = 10;
           character = {
@@ -100,7 +102,10 @@ in {
             symbol = "🌱 ";
             truncation_length = 4;
             truncation_symbol = "";
-            ignore_branches = ["master" "main"];
+            ignore_branches = [
+              "master"
+              "main"
+            ];
           };
           git_commit = {
             commit_hash_length = 4;
@@ -152,14 +157,21 @@ in {
             style = "italic bold ${teal}";
           };
           custom.readme = {
-            detect_files = ["README.md" "readme.org"];
+            detect_files = [
+              "README.md"
+              "readme.org"
+            ];
             style = "${sapphire}";
             symbol = " ";
             command = "";
             format = "[$symbol $output]($style)";
           };
           custom.deno = {
-            detect_files = ["deno.json" "imports.json" "import_map.json"];
+            detect_files = [
+              "deno.json"
+              "imports.json"
+              "import_map.json"
+            ];
             style = "";
             symbol = "🦕";
             command = "";
@@ -215,5 +227,5 @@ in {
         };
       };
     };
-  nixos = lib.mkIf enabled {};
+  nixos = lib.mkIf enabled { };
 }
