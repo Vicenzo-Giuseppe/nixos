@@ -4,11 +4,9 @@
   enabled,
   inputs,
   ...
-}:
-let
+}: let
   inherit (inputs) hyprland;
-in
-{
+in {
   home = lib.mkIf enabled {
     wayland.windowManager.hyprland = {
       enable = true;
@@ -25,8 +23,19 @@ in
         "$editor" = "zv";
         "$volumeStep" = "10";
 
+        # Declarative internal panel setup for the laptop display.
+        monitor = [
+          "eDP-1, 1920x1080@60, 0x0, 1.5"
+        ];
+
+        # Keep XWayland apps (Wine/Bottles) at native panel resolution even
+        # when the Wayland monitor scale is fractional.
+        xwayland = {
+          force_zero_scaling = true;
+        };
+
         # ── Caelestia Launcher ──
-        bindi = [ ];
+        bindi = [];
         env = [
           "LIBVA_DRIVER_NAME,iHD"
           "__GLX_VENDOR_LIBRARY_NAME,nvidia"
@@ -49,7 +58,7 @@ in
           # Window actions
           "SUPER, Q, killactive,"
           "SUPER, F, fullscreen, 0"
-          "SUPER, Space, togglesplit"
+          "SUPER, Space, layoutmsg, togglesplit"
           "SUPER+Shift, Space, togglefloating,"
           "SUPER, P, pin"
           "Ctrl+SUPER, Backslash, centerwindow, 1"
@@ -95,7 +104,6 @@ in
           "Ctrl+SUPER+Shift, down, movetoworkspace, e+0"
 
           # Apps and launcher
-          "SUPER, E, exec, $terminal"
           "SUPER, W, exec, $browser"
           "SUPER, T, exec, $file-manager"
           "SUPER, Z, exec, pkill fuzzel || fuzzel"
@@ -106,8 +114,8 @@ in
 
         binde = [
           # Resize split
-          "SUPER, Minus, splitratio, -0.1"
-          "SUPER, Equal, splitratio, 0.1"
+          "SUPER, Minus, layoutmsg, splitratio -0.1"
+          "SUPER, Equal, layoutmsg, splitratio 0.1"
           # Window group cycle
           "Alt, Tab, cyclenext"
           "Shift+Alt, Tab, cyclenext, prev"
@@ -130,13 +138,20 @@ in
         ];
 
         bindle = [
-          ", XF86AudioRaiseVolume, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ $volumeStep%+"
+          ", XF86AudioRaiseVolume, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ $volumeStep%+"
           ", XF86AudioLowerVolume, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ 0; wpctl set-volume @DEFAULT_AUDIO_SINK@ $volumeStep%-"
         ];
 
-        bindr = [ ];
+        bindr = [];
 
-        exec-once = [ ];
+        exec-once = [
+          # Make sure D-Bus/systemd user services see the live Wayland session env.
+          "${pkgs.dbus}/bin/dbus-update-activation-environment --systemd --all"
+          # Fractal and other libsecret clients need a running Secret Service backend.
+          "${pkgs.gnome-keyring}/bin/gnome-keyring-daemon --start --components=secrets"
+          # Provide a polkit auth dialog for pkexec actions started from the session.
+          "${pkgs.hyprpolkitagent}/libexec/hyprpolkitagent"
+        ];
 
         input = {
           kb_layout = "br";
@@ -175,6 +190,9 @@ in
     home.packages = with pkgs; [
       hyprland
       wofi
+      wtype
+      grim
+      slurp
       swaylock-effects
       brightnessctl
       pamixer
@@ -184,10 +202,13 @@ in
       fuzzel
       wireplumber
       pavucontrol
+      hyprpolkitagent
     ];
   };
 
   nixos = lib.mkIf enabled {
+    programs.ydotool.enable = true;
+
     programs.hyprland = {
       enable = true;
       package = hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
@@ -213,10 +234,13 @@ in
       };
     };
 
-    # xdg.portal = {
-    #   enable = true;
-    #   extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
-    # };
+    xdg.portal = {
+      enable = true;
+      extraPortals = [
+        hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland
+        pkgs.xdg-desktop-portal-gtk
+      ];
+    };
     # Kernel (good for newer laptops)
 
     environment.sessionVariables = {

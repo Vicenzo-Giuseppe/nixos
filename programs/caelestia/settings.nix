@@ -37,7 +37,7 @@
     logo = "caelestia";
     apps = {
       terminal = [
-        "warp"
+        "warp-oss"
       ];
       audio = [
         "pavucontrol"
@@ -46,7 +46,7 @@
         "mpv"
       ];
       explorer = [
-        "thunar"
+        "spacedrive"
       ];
     };
     idle = {
@@ -55,19 +55,19 @@
       timeouts = [
         {
           idleAction = "lock";
-          timeout = 180;
+          timeout = 300;
         }
         {
           idleAction = "dpms off";
           returnAction = "dpms on";
-          timeout = 300;
+          timeout = 600;
         }
         {
           idleAction = [
             "systemctl"
             "suspend-then-hibernate"
           ];
-          timeout = 600;
+          timeout = 1800;
         }
       ];
     };
@@ -154,13 +154,17 @@
           icon = "sports_esports";
           name = "steam";
         }
+        {
+          icon = "downloading";
+          name = "downloads";
+        }
       ];
     };
     tray = {
       background = true;
       recolour = true;
       compact = true;
-      iconSubs = [ ];
+      iconSubs = [];
     };
     status = {
       showAudio = true;
@@ -274,7 +278,7 @@
     vimKeybinds = true;
     favouriteApps = [
       "firefox"
-      "dev.warp.WarpPreview"
+      "dev.warp.WarpOss"
       "riseup-vpn"
       "spotify"
       "hydralauncher"
@@ -286,7 +290,7 @@
       "com.usebottles.bottles"
       "nvidia-settings"
     ];
-    hiddenApps = [ ];
+    hiddenApps = [];
     useFuzzy = {
       apps = true;
       actions = true;
@@ -311,6 +315,17 @@
         enabled = true;
         icon = "calculate";
         name = "Calculator";
+      }
+      {
+        command = [
+          "caelestia"
+          "clipboard"
+        ];
+        dangerous = false;
+        description = "Open clipboard history";
+        enabled = true;
+        icon = "content_paste";
+        name = "Clipboard History";
       }
       {
         command = [
@@ -546,12 +561,12 @@
       gameModeChanged = true;
       dndChanged = true;
       audioOutputChanged = true;
-      audioInputChanged = true;
-      capsLockChanged = true;
-      numLockChanged = true;
-      kbLayoutChanged = true;
+      audioInputChanged = false;
+      capsLockChanged = false;
+      numLockChanged = false;
+      kbLayoutChanged = false;
       vpnChanged = true;
-      nowPlaying = true;
+      nowPlaying = false;
     };
     vpn = {
       enabled = true;
@@ -581,7 +596,7 @@
     visualiserBars = 45;
     audioIncrement = 0.1;
     brightnessIncrement = 0.1;
-    maxVolume = 1;
+    maxVolume = 1.5;
     smartScheme = true;
     defaultPlayer = "Spotify";
     playerAliases = [

@@ -1,4 +1,7 @@
-programs/sops/envs.yaml
+/result
+/result-*
+/.direnv
+/.envrc.local
+/.code
+/programs/sops/envs.yaml
 .direnv
-result
-result-*

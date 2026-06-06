@@ -4,18 +4,21 @@
   enabled,
   host,
   ...
-}:
-let
+}: let
   #inherit (inputs) systemd;
   #system = "${systemd.packages.x86_64-linux.default}/bin/systemd-manager-tui";
-  sensors = "${lib.getExe pkgs.hwinfo-tui}";
-  weather = "${lib.getExe pkgs.stormy}";
+  sensors =
+    if pkgs ? hwinfo-tui
+    then "${lib.getExe pkgs.hwinfo-tui}"
+    else "echo 'hwinfo-tui is unavailable on this system'";
+  weather =
+    if pkgs ? stormy
+    then "${lib.getExe pkgs.stormy}"
+    else "echo 'stormy is unavailable on this system'";
   x = "eza --color=always --icons --group-directories-first -F ";
   overview = "--no-time --no-user --no-filesize --no-permissions";
-in
-{
-  home =
-    { config, ... }:
+in {
+  home = {config, ...}:
     lib.mkIf enabled {
       home = {
         packages = with pkgs; [
@@ -28,16 +31,24 @@ in
           printf '\eP$f{"hook": "SourcedRcFileForWarp", "value": { "shell": "bash"}}\x9c'
         fi
       '';
-       programs.zsh.initContent = ''
-         if [[ "''${TERM_PROGRAM:-}" == "WarpTerminal" ]]; then
-           printf '\eP$f{"hook": "SourcedRcFileForWarp", "value": { "shell": "zsh"}}\x9c'
-         fi
-       '';
+      programs.zsh.initExtra =
+        ''
+          if [[ "''${TERM_PROGRAM:-}" == "WarpTerminal" ]]; then
+            printf '\eP$f{"hook": "SourcedRcFileForWarp", "value": { "shell": "zsh"}}\x9c'
+          fi
+        ''
+        + lib.optionalString (host == "notebook") ''
+          # Automatic build telemetry in zsh is intentionally disabled.
+          # The old preexec/precmd hook ran nested `nix build --dry-run --json`
+          # and `nix path-info` probes from inside the interactive shell hook,
+          # which could interfere with the session. Use `notebook-flake-build`
+          # or `notebook-build-telemetry` explicitly instead.
+        '';
       programs.zsh = {
         enable = true;
-        dotDir = config.home.homeDirectory;
+        dotDir = lib.mkIf (host == "notebook") config.home.homeDirectory;
         autocd = true;
-        cdpath = map toString [ /etc/nixos ];
+        cdpath = map toString [/etc/nixos];
         #defaultKeymap = "vicmd";
         dirHashes = {
           down = "$HOME/Downloads";
@@ -127,11 +138,11 @@ in
     programs.zsh = {
       enable = true;
     };
-programs.bash.interactiveShellInit = ''
-    if [[ $- == *i* ]] && [[ -z ''${BASH_EXECUTION_STRING:-} ]]; then
-      exec ${pkgs.zsh}/bin/zsh
-    fi
-  '';
+    programs.bash.interactiveShellInit = ''
+      if [[ $- == *i* ]] && [[ -z ''${BASH_EXECUTION_STRING:-} ]]; then
+        exec ${pkgs.zsh}/bin/zsh
+      fi
+    '';
     # programs.bash.shellInit = ''
     #
     #   if [[ "$\{TERM_PROGRAM:-}" == "WarpTerminal" ]]; then

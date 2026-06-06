@@ -1,32 +1,42 @@
 ## lib/programs.nix - Registro de Programas (Sem Categorias)
 {lib}: let
   programsDir = ../programs;
-
-  # Lê o diretório e filtra apenas o que é diretório (seu workflow original)
-  # Se você usa arquivos .nix direto, mude para: (n: dir.${n} == "directory" || lib.hasSuffix ".nix" n)
   dir = builtins.readDir programsDir;
 
-  # Aqui pegamos todos os itens que são diretórios ou arquivos .nix
-  allProgramsRaw = builtins.filter (
+  folderPrograms = builtins.filter (
     n:
-      dir.${n} == "directory" || (dir.${n} == "regular" && lib.hasSuffix ".nix" n)
+      dir.${n} == "directory"
+      && (
+        builtins.pathExists (programsDir + "/${n}/module.nix")
+        || builtins.pathExists (programsDir + "/${n}/default.nix")
+      )
   ) (builtins.attrNames dir);
 
-  # Limpa o nome (remove .nix se for arquivo)
+  filePrograms = builtins.filter (
+    n:
+      dir.${n}
+      == "regular"
+      && lib.hasSuffix ".nix" n
+      && !(builtins.elem (cleanName n) folderPrograms)
+      && !(builtins.elem n [
+        "config.nix"
+        "module.nix"
+        "default.nix"
+        "run.nix"
+        "shell.nix"
+      ])
+  ) (builtins.attrNames dir);
+
   cleanName = n: lib.removeSuffix ".nix" n;
 
-  # Mantendo a semântica original de categorias, mas "fingindo" que
-  # a única categoria existente se chama "default" ou "programs"
   programDb = {
-    all = builtins.map cleanName allProgramsRaw;
+    all = lib.sort lib.lessThan (folderPrograms ++ builtins.map cleanName filePrograms);
   };
 
-  # Mantendo as variáveis que seu código espera:
   inherit (programDb) all;
 
-  categories = ["all"]; # Agora só existe uma categoria virtual
+  categories = ["all"];
 
-  # Mapeia cada programa para a categoria virtual "all"
   toCat = builtins.listToAttrs (builtins.map (p: {
       name = p;
       value = "all";
@@ -40,12 +50,14 @@ in {
     toCat
     ;
 
-  # Ajustado para procurar direto na raiz de programsDir
   path = program: _type: let
-    # Verifica se existe a pasta com default.nix ou o arquivo .nix direto
-    isDir = builtins.pathExists (programsDir + "/${program}/default.nix");
+    modulePath = programsDir + "/${program}/module.nix";
+    defaultPath = programsDir + "/${program}/default.nix";
+    filePath = programsDir + "/${program}.nix";
   in
-    if isDir
-    then programsDir + "/${program}/default.nix"
-    else programsDir + "/${program}.nix";
+    if builtins.pathExists modulePath
+    then modulePath
+    else if builtins.pathExists defaultPath
+    then defaultPath
+    else filePath;
 }

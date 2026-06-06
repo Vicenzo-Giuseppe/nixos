@@ -13,8 +13,19 @@ python3Packages.buildPythonPackage rec {
   };
 
   pyproject = true;
-  nativeBuildInputs = with python3Packages; [setuptools wheel];
-  propagatedBuildInputs = with python3Packages; [rich psutil pandas typer plotext watchdog toml];
+  nativeBuildInputs = with python3Packages; [
+    setuptools
+    wheel
+  ];
+  propagatedBuildInputs = with python3Packages; [
+    rich
+    psutil
+    pandas
+    typer
+    plotext
+    watchdog
+    toml
+  ];
 
   meta = with lib; {
     mainProgram = "hwinfo-tui";

@@ -12,6 +12,7 @@ in {
   bind = [
     "Ctrl+Alt, Delete, global, caelestia:session"
     "Ctrl, Space, global, caelestia:launcher"
+    "${super}, E, exec, warp-oss"
     "${superAlt}, K, global, caelestia:showall"
     "${superAlt}, L, global, caelestia:lock"
     "${superAlt}, S, exec, caelestia toggle specialws"

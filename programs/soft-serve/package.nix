@@ -1,0 +1,6 @@
+{
+  pkgs,
+  ...
+}: {
+  runtimeInputs = [pkgs.openssh];
+}

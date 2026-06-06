@@ -1,11 +1,35 @@
 {
   pkgs,
   config,
+  lib,
   ...
-}: {
+}: let
+  # ds4drv 0.5.1 still references evdev's removed `InputDevice.fn` attribute.
+  # Patch to `path` so the DualShock -> XInput bridge works on current nixpkgs.
+  ds4drvPatched = pkgs.python3Packages.ds4drv.overridePythonAttrs (old: {
+    postPatch =
+      (old.postPatch or "")
+      + ''
+        substituteInPlace ds4drv/actions/input.py \
+          --replace-fail "joystick.device.device.fn" "joystick.device.device.path"
+      '';
+  });
+in {
+  nix.settings = {
+    # Full auto parallelism is too aggressive for 15 GiB RAM during large Rust builds.
+    max-jobs = lib.mkForce 4;
+    cores = lib.mkForce 4;
+  };
+
+  environment.variables = {
+    # Keep cargo from spawning enough rustc jobs to stall the whole machine.
+    CARGO_BUILD_JOBS = "4";
+  };
+
   environment.systemPackages = [
     config.boot.kernelPackages.nvidiaPackages.stable
     pkgs.v4l-utils # Webcam diagnostics (v4l2-ctl, qv4l2)
+    ds4drvPatched # DualShock 4 to virtual Xbox 360 (XInput-like) bridge
   ];
   services.xserver.videoDrivers = ["nvidia"]; # NvidiaGraphicsSupport
   hardware = {
@@ -53,22 +77,18 @@
     envfs.enable = true; # BinarySupport
     fwupd.enable = true; # Firmware updates
     thermald.enable = true; # ThermalManagent ( ex fan speed % x Temperature)
-    pipewire.wireplumber.extraConfig."51-alsa-profile" = {
-      "monitor.alsa.rules" = [
-        {
-          matches = [
-            {
-              "device.name" = "alsa_card.pci-0000_00_1f.3";
-            }
-          ];
-          actions = {
-            update-props = {
-              # Keep the internal mic available by default.
-              "device.profile" = "output:analog-stereo+input:analog-stereo";
-            };
-          };
-        }
-      ];
+  };
+  # Export a virtual Xbox 360 controller from a DualShock 4 for games that
+  # only detect XInput devices.
+  systemd.services.ds4-xinput-bridge = {
+    description = "DualShock 4 to XInput bridge";
+    wantedBy = ["multi-user.target"];
+    after = ["bluetooth.target"];
+    serviceConfig = {
+      Type = "simple";
+      Restart = "always";
+      RestartSec = 2;
+      ExecStart = "${ds4drvPatched}/bin/ds4drv --hidraw --emulate-xpad --ignored-buttons PS";
     };
   };
   programs = {
@@ -78,6 +98,7 @@
     enable = true;
     priority = 100;
     algorithm = "zstd";
+    memoryPercent = 100;
   };
   # extraModprobeConfig = ''
   #   options legion_laptop force=1

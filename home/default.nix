@@ -1,55 +1,31 @@
 {
-  #wsl,
-  home,
   host,
   user,
   inputs,
   system,
-  Config,
-}:
-let
+  enabledPrograms,
+  ...
+}: let
   colors = import ./colors.nix;
-  inherit (inputs)
-    mnw
-    spicetify
-    cosmic-manager
-    sops
-    spacebot
-    caelestia
-    zen-browser
-    ;
-in
-[
-  home.nixosModules.home-manager
-  {
-    home-manager = {
-      useGlobalPkgs = true;
-      useUserPackages = true;
-      users.${user} =
-        { ... }:
-        {
-          imports = [
-            zen-browser.homeModules.twilight
-            cosmic-manager.homeManagerModules.default
-            mnw.homeManagerModules.default
-            sops.homeManagerModules.default
-            caelestia.homeManagerModules.default
-            ../lib/home.nix
-          ];
-        };
-      extraSpecialArgs = {
-        inherit
-          host
-          user
-          inputs
-          system
-          colors
-          Config
-          ;
-      };
+  inherit (inputs) home spicetify sops spacebot;
+in {
+  imports = [
+    home.nixosModules.home-manager
+    spicetify.nixosModules.spicetify
+    spacebot.nixosModules.default
+    sops.nixosModules.sops
+  ];
+
+  home-manager = {
+    useGlobalPkgs = true;
+    useUserPackages = true;
+    users.${user}.imports = [
+      (import ./profile.nix {
+        inherit inputs user host system enabledPrograms;
+      })
+    ];
+    extraSpecialArgs = {
+      inherit host user inputs system colors enabledPrograms;
     };
-  }
-  spicetify.nixosModules.spicetify
-  spacebot.nixosModules.default
-  sops.nixosModules.sops
-]
+  };
+}

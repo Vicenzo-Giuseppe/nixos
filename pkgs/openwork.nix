@@ -24,7 +24,7 @@
   libpulseaudio,
   libuuid,
   libx11,
-  libXss,
+  libXScrnSaver,
   libxcomposite,
   libxcursor,
   libxdamage,
@@ -74,7 +74,7 @@
     libsoup_3
     libuuid
     libx11
-    libXss
+    libXScrnSaver
     libxcomposite
     libxcursor
     libxdamage

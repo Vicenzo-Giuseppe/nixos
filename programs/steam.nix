@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: {
-  home = lib.mkIf enabled { };
+  home = lib.mkIf enabled {};
   nixos = lib.mkIf enabled {
     programs.steam = {
       extraCompatPackages = [pkgs.proton-ge-bin];

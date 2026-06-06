@@ -1,11 +1,4 @@
-{
-  nixpkgs,
-  user,
-  ...
-}: let
-  experimental-features = ["nix-command" "flakes"];
-  trusted-users = [user "root"];
-in {
+{nixpkgs, ...}: {
   nixpkgs = "nixos-unstable";
   permittedInsecurePackages = [
     "python-2.7.18.6"
@@ -18,7 +11,6 @@ in {
       "google-chrome"
       "warp-terminal"
       "steam-original"
-      "crush"
       "steam-run"
       "steamcmd"
       "cuda-merged"
@@ -47,11 +39,4 @@ in {
       "nvidia-x11"
       "spotify"
     ];
-  nix.settings = {
-    inherit trusted-users experimental-features;
-    substituters = ["https://cache.nixos.org/" "https://hyprland.cachix.org/"];
-    trusted-substituters = ["https://hyprland.cachix.org"];
-
-    trusted-public-keys = ["cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=" "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="];
-  };
 }

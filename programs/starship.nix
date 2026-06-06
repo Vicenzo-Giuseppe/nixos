@@ -1,20 +1,18 @@
 {
+  displayUser ? user,
   user,
   lib,
   enabled,
   ...
-}:
-let
-  username = with lib; toUpper (substring 0 1 user) + substring 1 (-1) user;
-in
-{
-  home =
-    { colors, ... }:
+}: let
+  username = with lib; toUpper (substring 0 1 displayUser) + substring 1 (-1) displayUser;
+in {
+  home = {colors, ...}:
     lib.mkIf enabled {
       programs.starship = {
         enable = true;
         enableZshIntegration = true;
-        settings = with colors { }; {
+        settings = with colors; {
           add_newline = false;
           format = lib.concatStrings [
             "$username"
@@ -227,5 +225,5 @@ in
         };
       };
     };
-  nixos = lib.mkIf enabled { };
+  nixos = lib.mkIf enabled {};
 }

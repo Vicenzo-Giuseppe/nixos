@@ -12,9 +12,11 @@
     "aria2"
     "input"
     "uinput"
+    "ydotool"
     "wheel"
     "networkmanager"
     "docker"
+    "disk"
     "video"
     "render"
   ];
